@@ -1,3 +1,12 @@
+//
+//  ParticleView.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct ParticleView: View {
     @State private var particles: [Particle] = []
     
@@ -8,14 +17,17 @@ struct ParticleView: View {
                     Circle()
                         .fill(.white.opacity(0.05))
                         .frame(width: particle.size, height: particle.size)
-                        .offset(x: particle.x, y: particle.y)
+                        .position(x: particle.x, y: particle.y)
                 }
             }
             .onAppear {
                 generateParticles(in: geometry.size)
             }
+            .onChange(of: geometry.size) {_, newSize in
+                generateParticles(in: newSize)
+            }
         }
-        .ignoresSafeArea() // Ensures particles extend beyond safe areas if needed
+        .ignoresSafeArea()
     }
     
     private func generateParticles(in size: CGSize) {
@@ -30,6 +42,9 @@ struct ParticleView: View {
     }
 }
 
+#Preview {
+    ParticleView()
+}
 
 struct Particle: Identifiable {
     let id = UUID()

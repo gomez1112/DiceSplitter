@@ -1,3 +1,11 @@
+//
+//  PlayerBadge.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
 
 struct PlayerBadge: View {
     let player: Player
@@ -29,4 +37,8 @@ struct PlayerBadge: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(player.accessibilityName), Score: \(score)")
     }
+}
+
+#Preview {
+    PlayerBadge(player: .green, score: 10, isActive: true)
 }

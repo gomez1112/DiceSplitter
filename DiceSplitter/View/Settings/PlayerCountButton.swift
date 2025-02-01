@@ -1,3 +1,12 @@
+//
+//  PlayerCountButton.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct PlayerCountButton: View {
     let count: Int
     let isSelected: Bool
@@ -9,9 +18,10 @@ struct PlayerCountButton: View {
                 Image(systemName: count == 4 ? "person.badge.plus" : "person.\(count)")
                     .font(.title2)
                     .symbolVariant(isSelected ? .fill : .none)
-                
+                    
                 Text("\(count)")
                     .font(.callout.bold())
+                    
             }
             .padding(12)
             .frame(maxWidth: .infinity)
@@ -27,4 +37,8 @@ struct PlayerCountButton: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+#Preview {
+    PlayerCountButton(count: 2, isSelected: true, action: {})
 }

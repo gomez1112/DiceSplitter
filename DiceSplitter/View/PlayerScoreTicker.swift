@@ -1,3 +1,12 @@
+//
+//  PlayerScoreTicker.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct PlayerScoreTicker: View {
     let currentPlayer: Player
     let scores: [(player: Player, score: Int)]
@@ -16,4 +25,8 @@ struct PlayerScoreTicker: View {
             .padding(.vertical, 8)
         }
     }
+}
+
+#Preview {
+    PlayerScoreTicker(currentPlayer: .blue, scores: [(Player.blue, 10)])
 }

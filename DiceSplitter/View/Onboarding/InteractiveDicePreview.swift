@@ -1,3 +1,12 @@
+//
+//  InteractiveDicePreview.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct InteractiveDicePreview: View {
     @State private var dice = Dice(row: 0, column: 0, neighbors: 3)
     
@@ -15,4 +24,8 @@ struct InteractiveDicePreview: View {
                 .foregroundColor(.white.opacity(0.7))
         }
     }
+}
+
+#Preview {
+    InteractiveDicePreview()
 }

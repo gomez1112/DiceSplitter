@@ -1,3 +1,12 @@
+//
+//  PersonalizeOnboarding.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct PersonalizeOnboarding: View {
     @State private var mapSize = CGSize(width: 5, height: 5)
     @State private var playerType: PlayerType = .human
@@ -11,6 +20,14 @@ struct PersonalizeOnboarding: View {
                 .foregroundColor(.white)
             
             SettingCard(title: "Board Size", icon: "square.grid.3x3.fill") {
+                HStack {
+                    Text("\(Int(mapSize.width))x\(Int(mapSize.height))")
+                        .font(.title3.monospacedDigit())
+                        .bold()
+                    Spacer()
+                    GridPatternPreview(columns: Int(mapSize.width), rows: Int(mapSize.height))
+                        .frame(width: 80, height: 80)
+                }
                 DualSlider(
                     widthLabel: "Columns",
                     heightLabel: "Rows",
@@ -18,6 +35,7 @@ struct PersonalizeOnboarding: View {
                     height: $mapSize.height,
                     range: 3...20
                 )
+                
             }
             
             SettingCard(title: "Players", icon: "person.3.fill") {
@@ -46,4 +64,8 @@ struct PersonalizeOnboarding: View {
             .buttonStyle(ScalingButtonStyle())
         }
     }
+}
+
+#Preview {
+    PersonalizeOnboarding(onComplete: {})
 }

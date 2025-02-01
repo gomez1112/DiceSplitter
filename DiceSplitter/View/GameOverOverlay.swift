@@ -39,15 +39,30 @@ struct GameOverOverlay: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                Button(action: reset) {
-                    Label("Play Again", systemImage: "arrow.clockwise")
-                        .font(.system(.body, design: .rounded, weight: .semibold))
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 24)
-                        .frame(minWidth: 160)
+                HStack {
+                    Button(action: reset) {
+                        Label("Play Again", systemImage: "arrow.clockwise")
+                            .font(.system(.body, design: .rounded, weight: .semibold))
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 24)
+                            .frame(minWidth: 160)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(winner?.color ?? .blue)
+                    NavigationLink {
+                        ContentView()
+                    } label: {
+                        Label("Settings", systemImage: "gear")
+                            .font(.system(.body, design: .rounded, weight: .semibold))
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 24)
+                            .frame(minWidth: 160)
+                            .foregroundStyle(.white)
+                            
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(winner?.color ?? .blue)
             }
             .padding()
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -60,34 +75,4 @@ struct GameOverOverlay: View {
 
 #Preview {
     GameOverOverlay(winner: Player.green, winnerScore: 10, reset: {})
-}
-struct PlayerChip: View {
-    let player: Player
-    let score: Int
-    let isActive: Bool
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(player.color)
-                .frame(width: 16, height: 16)
-            
-            Text("\(score)")
-                .font(.system(.body, design: .rounded, weight: .bold))
-                .contentTransition(.numericText())
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background {
-            if isActive {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(player.color.opacity(0.2))
-            }
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(player.color.opacity(0.3), lineWidth: 1)
-        }
-        .animation(.bouncy, value: isActive)
-    }
 }

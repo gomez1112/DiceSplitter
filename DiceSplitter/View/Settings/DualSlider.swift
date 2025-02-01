@@ -1,3 +1,12 @@
+//
+//  DualSlider.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct DualSlider: View {
     let widthLabel: String
     let heightLabel: String
@@ -24,4 +33,8 @@ struct DualSlider: View {
             }
         }
     }
+}
+
+#Preview {
+    DualSlider(widthLabel: "Min", heightLabel: "Max", width: .constant(100.0), height: .constant(100.0), range: 2...10)
 }

@@ -1,3 +1,11 @@
+//
+//  PlayerChip.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+import SwiftUI
+
 struct PlayerChip: View {
     let player: Player
     let score: Int
@@ -27,4 +35,8 @@ struct PlayerChip: View {
         }
         .animation(.bouncy, value: isActive)
     }
+}
+
+#Preview {
+    PlayerChip(player: Player.blue, score: 10, isActive: true)
 }

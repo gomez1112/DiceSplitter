@@ -1,3 +1,12 @@
+//
+//  SettingCard.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct SettingCard<Content: View>: View {
     let title: String
     let icon: String

@@ -1,3 +1,12 @@
+//
+//  GridPatternPreview.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct GridPatternPreview: View {
     let columns: Int
     let rows: Int
@@ -25,4 +34,8 @@ struct GridPatternPreview: View {
             }
         }
     }
+}
+
+#Preview {
+    GridPatternPreview(columns: 2, rows: 2)
 }

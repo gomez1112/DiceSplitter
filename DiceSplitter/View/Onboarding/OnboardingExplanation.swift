@@ -1,3 +1,11 @@
+//
+//  OnboardingExplanation.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
 
 struct OnboardingExplanation: View {
     let title: String
@@ -30,4 +38,8 @@ struct OnboardingExplanation: View {
                 .italic()
         }
     }
+}
+
+#Preview {
+    OnboardingExplanation(title: "Dice", description: "A dice game", image: "die.3", hint: "")
 }

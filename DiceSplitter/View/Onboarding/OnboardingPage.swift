@@ -1,3 +1,12 @@
+//
+//  OnboardingPage.swift
+//  DiceSplitter
+//
+//  Created by Gerard Gomez on 1/27/25.
+//
+
+import SwiftUI
+
 struct OnboardingPage: View {
     let title: String
     let description: String
@@ -21,4 +30,8 @@ struct OnboardingPage: View {
         }
         .foregroundColor(.white)
     }
+}
+
+#Preview {
+    OnboardingPage(title: "Dice", description: "A dice game", image: "die.3")
 }
