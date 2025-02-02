@@ -10,9 +10,9 @@ import SwiftUI
 struct GameView: View {
     let game: Game
     @State private var showingSettings = false
-    @State private var mapSize = CGSize(width: 5, height: 5)
-    @State private var playerType: PlayerType = .human
-    @State private var numberOfPlayers = 2
+    @Binding var mapSize: CGSize
+    @Binding var playerType: PlayerType
+    @Binding var numberOfPlayers: Int
 
     var body: some View {
         @Bindable var game = game
@@ -36,7 +36,6 @@ struct GameView: View {
                         .padding()
                     }
                     .scrollIndicators(.hidden)
-                    // .background(Color(.secondarySystemBackground))
                     
                 }
                 .scrollContentBackground(.visible)
@@ -52,8 +51,12 @@ struct GameView: View {
                             } label: {
                                 Label("New Game", systemImage: "arrow.circlepath")
                             }
-                            
+                            Button("Reset Game") {
+                                game.reset(rows: Int(mapSize.width), columns: Int(mapSize.height), playerType: playerType, numberOfPlayers: numberOfPlayers)
+                            }
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
                             Button("Settings", systemImage: "gear", action: { showingSettings.toggle() })
+                            
                         } label: {
                             Label("Menu", systemImage: "ellipsis.circle")
                         }
@@ -95,6 +98,6 @@ struct GameView: View {
 
 
 #Preview {
-    GameView(game: Game(rows: 5, columns: 5, playerType: PlayerType.ai, numberOfPlayers: 3))
+    GameView(game: Game(rows: 4, columns: 4, playerType: .ai, numberOfPlayers: 3), mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3))
 }
 

@@ -18,8 +18,8 @@ final class Game {
     var changeAmount = 0.0
     
     private var aiClosedList = [Dice]()
-    private let numRows: Int
-    private let numCols: Int
+    private var numRows: Int
+    private var numCols: Int
     private var playerType: PlayerType
     private var numberOfPlayers: Int
     
@@ -45,28 +45,37 @@ final class Game {
         
         // Initialize rows
         self.rows = [[Dice]]()
-        for rowCount in 0..<numRows {
-            var newRow = [Dice]()
-            for colCount in 0..<numCols {
-                let dice = Dice(row: rowCount, column: colCount, neighbors: countNeighbors(row: rowCount, col: colCount))
-                newRow.append(dice)
+        // Create the initial board using the current numRows and numCols.
+        self.rows = (0..<numRows).map { row in
+            (0..<numCols).map { col in
+                Dice(row: row, column: col, neighbors: countNeighbors(row: row, col: col))
             }
-            self.rows.append(newRow)
         }
     }
+    
     func reset(rows: Int, columns: Int, playerType: PlayerType, numberOfPlayers: Int) {
+        // Update board dimensions
+        self.numRows = rows
+        self.numCols = columns
+        
+        // Reinitialize the board with new Dice (all with value = 1 and owner = .none)
         self.rows = (0..<rows).map { row in
             (0..<columns).map { col in
                 Dice(row: row, column: col, neighbors: countNeighbors(row: row, col: col))
             }
         }
         
+        // Clear any leftover state
+        self.changeList.removeAll()
+        self.aiClosedList.removeAll()
+        self.changeAmount = 0.0
+        self.state = .waiting
+        
+        // Update players and the active player
         self.playerType = playerType
         self.numberOfPlayers = numberOfPlayers
-
-        self.activePlayer = Array(Player.allPlayers.prefix(numberOfPlayers)).first ?? .green
-        
         self.players = Array(Player.allPlayers.prefix(numberOfPlayers))
+        self.activePlayer = self.players.first ?? .green
     }
 
     var isGameOver: Bool {

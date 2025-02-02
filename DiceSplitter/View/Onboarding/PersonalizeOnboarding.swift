@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct PersonalizeOnboarding: View {
-    @State private var mapSize = CGSize(width: 5, height: 5)
-    @State private var playerType: PlayerType = .human
-    @State private var numberOfPlayers = 2
+    @Binding var mapSize: CGSize
+    @Binding var playerType: PlayerType
+    @Binding var numberOfPlayers: Int
     let onComplete: () -> Void
     
     var body: some View {
@@ -67,5 +67,5 @@ struct PersonalizeOnboarding: View {
 }
 
 #Preview {
-    PersonalizeOnboarding(onComplete: {})
+    PersonalizeOnboarding(mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3), onComplete: {})
 }

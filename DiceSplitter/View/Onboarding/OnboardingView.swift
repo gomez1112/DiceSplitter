@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct OnboardingView: View {
+    @Binding var mapSize: CGSize
+    @Binding var playerType: PlayerType
+    @Binding var numberOfPlayers: Int
     @State private var currentPage = 0
     let completion: () -> Void
     
@@ -59,7 +62,7 @@ struct OnboardingView: View {
                     )
                     .tag(3)
                     
-                    PersonalizeOnboarding(onComplete: completion)
+                    PersonalizeOnboarding(mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, onComplete: completion)
                         .tag(4)
                 }
                 #if !os(macOS)
@@ -105,6 +108,6 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView(completion: {})
+    OnboardingView(mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3), completion: {})
 }
 

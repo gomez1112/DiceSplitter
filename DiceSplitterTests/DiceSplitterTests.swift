@@ -122,11 +122,14 @@ struct DiceSplitterTests {
     func gameOverNoValidMoves() async {
         let game = Game(rows: 2, columns: 2, playerType: .human, numberOfPlayers: 2)
         
-        // Set values exceeding neighbors
-        game.rows.forEach { row in
-            row.forEach { die in
+        // Set each die's value to exceed its neighbors.
+        // Then, assign two dice to .green and two dice to .red deterministically.
+        for (i, row) in game.rows.enumerated() {
+            for (j, die) in row.enumerated() {
                 die.value = die.neighbors + 1
-                die.owner = [.green, .red].randomElement()!
+                // Use a simple pattern to assign owners:
+                // For example, if the sum of the row and column indices is even, assign .green; otherwise, .red.
+                die.owner = (i + j) % 2 == 0 ? .green : .red
             }
         }
         

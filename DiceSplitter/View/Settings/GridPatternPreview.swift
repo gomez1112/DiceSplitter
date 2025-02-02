@@ -27,7 +27,7 @@ struct GridPatternPreview: View {
                         
                         context.fill(
                             Path(roundedRect: rect, cornerRadius: 4),
-                            with: .color(.blue.opacity(0.2))
+                            with: .color(.white)
                         )
                     }
                 }

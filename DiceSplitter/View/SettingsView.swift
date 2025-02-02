@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = true
     @Binding var mapSize: CGSize
     @Binding var playerType: PlayerType
     @Binding var numberOfPlayers: Int
@@ -87,7 +89,12 @@ struct SettingsView: View {
                         
                         
                     }
-                    Button(action: startGame) {
+                    Button {
+                        startGame()
+                        dismiss()
+                        
+                    }
+                    label: {
                         HStack {
                             Text("Start Battle")
                             Image(systemName: "play.fill")
@@ -107,6 +114,29 @@ struct SettingsView: View {
                         )
                     }
                     .buttonStyle(ScalingButtonStyle())
+                    Button {
+                        hasCompletedOnboarding = false
+                        dismiss()
+                    } label: {
+                        HStack {
+                            Text("Show Onboarding")
+                            Image(systemName: "questionmark.circle.fill")
+                        }
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                                .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle((ScalingButtonStyle()))
                 }
                 .padding()
             }
