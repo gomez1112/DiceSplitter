@@ -16,6 +16,7 @@ enum Player: Identifiable, CaseIterable {
     case yellow
     
     var id: Self { self }
+    
     var displayName: String {
         switch self {
             case .green: "Green"
@@ -25,6 +26,7 @@ enum Player: Identifiable, CaseIterable {
             case .yellow: "Yellow"
         }
     }
+    
     var color: Color {
         switch self {
             case .green: .green

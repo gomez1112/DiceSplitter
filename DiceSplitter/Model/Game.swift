@@ -96,6 +96,7 @@ final class Game {
         
         return allOwnedByOnePlayer || noValidMovesForAnyPlayer || aiCannotMove
     }
+    
     private func hasValidMoves(for player: Player) -> Bool {
         for row in rows {
             for dice in row {
@@ -109,6 +110,7 @@ final class Game {
         }
         return false
     }
+    
     // Add a computed property to determine the winner
     var winner: Player? {
         guard isGameOver else { return nil }
@@ -149,6 +151,7 @@ final class Game {
             }
         }
     }
+    
     private func getBestMove() -> Dice? {
         let aiPlayer = Player.red
         var bestDice = [Dice]()
@@ -204,6 +207,7 @@ final class Game {
         if bestDice.isEmpty {
             return nil
         }
+        
         if Bool.random() {
             // 50% of the time we fortify
             var highestValue = 0
@@ -226,6 +230,7 @@ final class Game {
         }
         
     }
+    
     private func executeAITurn() {
         if let dice = getBestMove() {
             changeList.append(dice)
@@ -236,6 +241,7 @@ final class Game {
             nextTurn()
         }
     }
+    
     private func countNeighbors(row: Int, col: Int) -> Int {
         var result = 0
         
@@ -257,6 +263,7 @@ final class Game {
         
         return result
     }
+    
     private func getNeighbors(row: Int, col: Int) -> [Dice] {
         var result = [Dice]()
         
@@ -278,6 +285,7 @@ final class Game {
         
         return result
     }
+    
     private func bump(_ dice: Dice) {
         dice.value += 1
         dice.owner = activePlayer
@@ -295,6 +303,7 @@ final class Game {
             }
         }
     }
+    
     private func runChanges() {
         if changeList.isEmpty {
             nextTurn()
@@ -311,6 +320,7 @@ final class Game {
             self.runChanges()
         }
     }
+    
     private func nextTurn() {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }
         
@@ -327,7 +337,8 @@ final class Game {
             state = .waiting
         }
     }
-    func increment(_ dice: Dice) {
+    func
+    increment(_ dice: Dice) {
         guard state == .waiting else { return }
         guard dice.owner == .none || dice.owner == activePlayer else { return }
         
@@ -335,6 +346,7 @@ final class Game {
         changeList.append(dice)
         runChanges()
     }
+    
     func score(for player: Player) -> Int {
         var count = 0
         
