@@ -39,6 +39,7 @@ struct ContentView: View {
             } else {
                 OnboardingView(mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers) {
                     hasCompletedOnboarding = true
+                    startGame()
                 }
             }
         }

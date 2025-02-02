@@ -93,13 +93,6 @@ struct OnboardingView: View {
                 }
         
                 .padding()
-                if currentPage == 4 {
-                    Button("Get Started") {
-                        completion()
-                    }
-                    .buttonStyle(ScalingButtonStyle())
-                    .padding(.horizontal, 30)
-                }
             }
             .padding()
         }
