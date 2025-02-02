@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CC1FB6492D4EF31700BAB617 /* Readme.md in Resources */ = {isa = PBXBuildFile; fileRef = CC1FB6472D4EF30C00BAB617 /* Readme.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CC3559692D46E0730058E292 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CC1FB6472D4EF30C00BAB617 /* Readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Readme.md; sourceTree = "<group>"; };
 		CC3559572D46E0710058E292 /* DiceSplitter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiceSplitter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC3559682D46E0730058E292 /* DiceSplitterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiceSplitterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC3559722D46E0730058E292 /* DiceSplitterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiceSplitterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +84,7 @@
 				CC35596B2D46E0730058E292 /* DiceSplitterTests */,
 				CC3559752D46E0730058E292 /* DiceSplitterUITests */,
 				CC3559582D46E0710058E292 /* Products */,
+				CC1FB6472D4EF30C00BAB617 /* Readme.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -212,6 +218,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC1FB6492D4EF31700BAB617 /* Readme.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
