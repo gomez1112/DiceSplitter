@@ -19,7 +19,13 @@ struct ContentView: View {
             if hasCompletedOnboarding {
                 if let game {
                     ZStack {
-                        GameView(game: game, mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers)
+                        GameView(game: game, mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, resetGame: {
+                            self.game = Game(
+                                rows: Int(mapSize.width),
+                                columns: Int(mapSize.height),
+                                playerType: playerType,
+                                numberOfPlayers: numberOfPlayers)
+                        })
                             .navigationTitle("Dice Splitter")
                             #if !os(macOS)
                             .navigationBarTitleDisplayMode(.inline)
@@ -27,7 +33,12 @@ struct ContentView: View {
                             .blur(radius: game.isGameOver ? 10 : 0)
                         if game.isGameOver {
                             GameOverOverlay(winner: game.winner, winnerScore: game.winner.map { game.score(for: $0)} ?? 0) {
-                                game.reset(rows: Int(mapSize.width), columns: Int(mapSize.height), playerType: playerType, numberOfPlayers: numberOfPlayers)
+                                self.game = Game(
+                                    rows: Int(mapSize.width),
+                                    columns: Int(mapSize.height),
+                                    playerType: playerType,
+                                    numberOfPlayers: numberOfPlayers
+                                )
                             }
                             
                         }

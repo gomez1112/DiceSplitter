@@ -13,7 +13,7 @@ struct GameView: View {
     @Binding var mapSize: CGSize
     @Binding var playerType: PlayerType
     @Binding var numberOfPlayers: Int
-
+    let resetGame: () -> Void
     var body: some View {
        // @Bindable var game = game
         NavigationStack {
@@ -68,26 +68,14 @@ struct GameView: View {
                         playerType: $playerType,
                         numberOfPlayers: $numberOfPlayers
                     ) {
-                        game.reset(
-                            rows: Int(mapSize.width),
-                            columns: Int(mapSize.height),
-                            playerType: playerType,
-                            numberOfPlayers: numberOfPlayers
-                        )
+                        
                     }
                 }
                 .overlay {
                     if game.isGameOver {
                         GameOverOverlay(
                             winner: game.winner, winnerScore: game.winner.map { game.score(for: $0)} ?? 0,
-                            reset: {
-                                game.reset(
-                                    rows: Int(mapSize.width),
-                                    columns: Int(mapSize.height),
-                                    playerType: playerType,
-                                    numberOfPlayers: numberOfPlayers
-                                )
-                            }
+                            reset: resetGame
                         )
                     }
                 }
@@ -98,6 +86,6 @@ struct GameView: View {
 
 
 #Preview {
-    GameView(game: Game(rows: 4, columns: 4, playerType: .ai, numberOfPlayers: 3), mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3))
+    GameView(game: Game(rows: 4, columns: 4, playerType: .ai, numberOfPlayers: 3), mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3), resetGame: {})
 }
 
