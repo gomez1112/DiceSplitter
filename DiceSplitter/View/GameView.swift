@@ -15,7 +15,7 @@ struct GameView: View {
     @Binding var numberOfPlayers: Int
 
     var body: some View {
-        @Bindable var game = game
+       // @Bindable var game = game
         NavigationStack {
             ZStack {
                 MeshGradientView()

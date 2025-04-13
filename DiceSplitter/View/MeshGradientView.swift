@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MeshGradientView: View {
     var body: some View {
-        TimelineView(.animation) { timeline in
+        TimelineView(.everyMinute) { timeline in
             let x = (sin(timeline.date.timeIntervalSince1970) + 2) / 2
             MeshGradient(width: 3, height: 3, points: [
                 [0, 0], [0.5, 0], [1, 0],

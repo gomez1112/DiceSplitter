@@ -87,9 +87,10 @@ final class Game {
         }
         
         // Condition 2: No valid moves left for any player
-        let noValidMovesForAnyPlayer = players.contains { player in
+        let noValidMovesForAnyPlayer = players.allSatisfy { player in
             !hasValidMoves(for: player)
         }
+
         
         // Condition 3: AI cannot make any more moves (if AI is playing)
         let aiCannotMove = playerType == .ai && activePlayer == .red && !hasValidMoves(for: .red)
@@ -325,9 +326,12 @@ final class Game {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }
         
         // Move to the next player
-        let nextIndex = (currentIndex + 1) % players.count
+        var nextIndex = (currentIndex + 1) % players.count
         activePlayer = players[nextIndex]
-        
+        // Loop until you return to the original index, in case no one can move
+        while nextIndex != currentIndex && !hasValidMoves(for: players[nextIndex]) {
+            nextIndex = (nextIndex + 1) % players.count
+        }
         if activePlayer == .red && playerType == .ai {
             state = .thinking
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

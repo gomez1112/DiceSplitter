@@ -57,11 +57,6 @@ struct PersonalizeOnboarding: View {
                 ))
                 .toggleStyle(DynamicToggleStyle())
             }
-            
-            Button("Finish Setup") {
-                onComplete()
-            }
-            .buttonStyle(ScalingButtonStyle())
         }
     }
 }

@@ -52,7 +52,7 @@ struct GameOverOverlay: View {
                     NavigationLink {
                         ContentView()
                     } label: {
-                        Label("Settings", systemImage: "gear")
+                        Label("Game", systemImage: "gear")
                             .font(.system(.body, design: .rounded, weight: .semibold))
                             .padding(.vertical, 12)
                             .padding(.horizontal, 24)
