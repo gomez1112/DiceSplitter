@@ -38,11 +38,13 @@ struct DiceView: View {
     }
     
     var diceImage: some View {
-        Image(systemName: "die.face.\(dice.value).fill")
+        let clampedValue = max(1, min(6, dice.value))
+        return Image(systemName: "die.face.\(clampedValue).fill")
             .resizable()
             .aspectRatio(1, contentMode: .fit)
             .padding(10)
     }
+    
     private var ownershipBadge: some View {
         Circle()
             .fill(dice.owner.color)

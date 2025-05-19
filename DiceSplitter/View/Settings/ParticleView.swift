@@ -33,8 +33,8 @@ struct ParticleView: View {
     private func generateParticles(in size: CGSize) {
         particles = (0..<50).map { _ in
             Particle(
-                x: CGFloat.random(in: -size.width / 2...size.width / 2),
-                y: CGFloat.random(in: -size.height / 2...size.height / 2),
+                x: CGFloat.random(in: 0...size.width),
+                y: CGFloat.random(in: 0...size.height),
                 size: CGFloat.random(in: 20...100),
                 speed: CGFloat.random(in: 0.5...2)
             )

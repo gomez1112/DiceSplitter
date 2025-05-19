@@ -55,9 +55,10 @@ struct ContentView: View {
             }
         }
     }
-    
     private func startGame() {
-        game = Game(rows: Int(mapSize.width), columns: Int(mapSize.height), playerType: playerType, numberOfPlayers: numberOfPlayers)
+        let width = max(3, Int(mapSize.width))
+        let height = max(3, Int(mapSize.height))
+        game = Game(rows: width, columns: height, playerType: playerType, numberOfPlayers: numberOfPlayers)
     }
 }
 

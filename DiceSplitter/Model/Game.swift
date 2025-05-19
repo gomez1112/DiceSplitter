@@ -14,7 +14,7 @@ import SwiftUI
 @MainActor
 final class Game {
     var rows: [[Dice]]
-    var changeList = [Dice]()
+    var changeList = [(row: Int, col: Int)]()
     var changeAmount = 0.0
     
     private var aiClosedList = [Dice]()
@@ -115,30 +115,13 @@ final class Game {
     // Add a computed property to determine the winner
     var winner: Player? {
         guard isGameOver else { return nil }
-        
-        // If all dice are owned by one player, that player wins
-        for player in players {
-            if rows.allSatisfy({ row in row.allSatisfy { $0.owner == player } }) {
-                return player
-            }
+        let scores = players.map { ($0, score(for: $0)) }
+        let maxScore = scores.map(\.1).max() ?? 0
+        let topPlayers = scores.filter { $0.1 == maxScore }
+        if topPlayers.count == 1 {
+            return topPlayers.first?.0
         }
-        
-        // Otherwise, determine the player with the highest score
-        var maxScore = -1
-        var winningPlayer: Player? = nil
-        
-        for player in players {
-            let playerScore = score(for: player)
-            if playerScore > maxScore {
-                maxScore = playerScore
-                winningPlayer = player
-            } else if playerScore == maxScore {
-                // It's a tie
-                winningPlayer = nil
-            }
-        }
-        
-        return winningPlayer
+        return nil // Tie
     }
 
     private func checkMove(for dice: Dice) {
@@ -234,7 +217,7 @@ final class Game {
     
     private func executeAITurn() {
         if let dice = getBestMove() {
-            changeList.append(dice)
+            changeList.append((dice.row, dice.column))
             state = .changing
             runChanges()
         } else {
@@ -287,22 +270,36 @@ final class Game {
         return result
     }
     
-    private func bump(_ dice: Dice) {
-        dice.value += 1
-        dice.owner = activePlayer
-        dice.changeAmount = 1
+    private func bump(row: Int, col: Int) {
+        // Make sure indices are valid
+        guard rows.indices.contains(row), rows[row].indices.contains(col) else { return }
         
-        withAnimation {
-            dice.changeAmount = 0
-        }
+        // Mutate dice in place
+        rows[row][col].value += 1
+        rows[row][col].owner = activePlayer
+        rows[row][col].changeAmount = 1
         
-        if dice.value > dice.neighbors {
-            dice.value = 1
+        // You can't use withAnimation in a model method; do it in the view instead,
+        // or use a callback. (Omit for pure model logic.)
+        // withAnimation { rows[row][col].changeAmount = 0 }
+        
+        // Check for explosion
+        if rows[row][col].value > rows[row][col].neighbors {
+            rows[row][col].value = 1
             
-            for neighbor in getNeighbors(row: dice.row, col: dice.column) {
-                changeList.append(neighbor)
+            // For each neighbor, add its (row, col) to changeList
+            for (nRow, nCol) in getNeighborIndices(row: row, col: col) {
+                changeList.append((nRow, nCol))
             }
         }
+    }
+    private func getNeighborIndices(row: Int, col: Int) -> [(Int, Int)] {
+        var result: [(Int, Int)] = []
+        if col > 0 { result.append((row, col - 1)) }
+        if col < numCols - 1 { result.append((row, col + 1)) }
+        if row > 0 { result.append((row - 1, col)) }
+        if row < numRows - 1 { result.append((row + 1, col)) }
+        return result
     }
     
     private func runChanges() {
@@ -313,8 +310,8 @@ final class Game {
         let toChange = changeList
         changeList.removeAll()
         
-        for dice in toChange {
-            bump(dice)
+        for (row, col) in toChange {
+            bump(row: row, col: col)
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -324,13 +321,14 @@ final class Game {
     
     private func nextTurn() {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }
-        
-        // Move to the next player
         var nextIndex = (currentIndex + 1) % players.count
-        activePlayer = players[nextIndex]
-        // Loop until you return to the original index, in case no one can move
-        while nextIndex != currentIndex && !hasValidMoves(for: players[nextIndex]) {
+        let originalIndex = currentIndex
+        var searched = 0
+        
+        while nextIndex != originalIndex && !hasValidMoves(for: players[nextIndex]) {
             nextIndex = (nextIndex + 1) % players.count
+            searched += 1
+            if searched > players.count { break }
         }
         if activePlayer == .red && playerType == .ai {
             state = .thinking
@@ -347,7 +345,7 @@ final class Game {
         guard dice.owner == .none || dice.owner == activePlayer else { return }
         
         state = .changing
-        changeList.append(dice)
+        changeList.append((dice.row, dice.column))
         runChanges()
     }
     
