@@ -42,6 +42,7 @@ struct OnboardingView: View {
                         InteractiveDicePreview()
                     }
                     .tag(1)
+                    
                     OnboardingExplanation(
                         title: "Grow Your Influence",
                         description: """
@@ -65,8 +66,8 @@ struct OnboardingView: View {
                     PersonalizeOnboarding(mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, onComplete: completion)
                         .tag(4)
                 }
-                #if !os(macOS)
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                #if os(iOS)
+                .tabViewStyle(.page(indexDisplayMode: .always))
                 #endif
                 .animation(.easeInOut, value: currentPage)
                 HStack {

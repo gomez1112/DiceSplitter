@@ -8,8 +8,4 @@
 import Foundation
 import SwiftUI
 
-extension View {
-    func settingsCardContentStyle() -> some View {
-        modifier(SettingsCardContentModifier())
-    }
-}
+

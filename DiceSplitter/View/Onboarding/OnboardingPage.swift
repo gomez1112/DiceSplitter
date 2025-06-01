@@ -28,7 +28,7 @@ struct OnboardingPage: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
         }
-        .foregroundColor(.white)
+        .foregroundStyle(.white)
     }
 }
 

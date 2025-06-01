@@ -17,7 +17,7 @@ struct PersonalizeOnboarding: View {
         VStack(spacing: 20) {
             Text("Set Up Your Game")
                 .font(.title.bold())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
             
             SettingCard(title: "Board Size", icon: "square.grid.3x3.fill") {
                 HStack {
@@ -55,7 +55,7 @@ struct PersonalizeOnboarding: View {
                     get: { playerType == .ai },
                     set: { playerType = $0 ? .ai : .human }
                 ))
-                .toggleStyle(DynamicToggleStyle())
+                .toggleStyle(.switch)
             }
         }
     }

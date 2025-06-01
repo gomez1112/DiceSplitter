@@ -8,9 +8,9 @@
 import Foundation
 import Observation
 
-//@Observable
-//@MainActor
-struct Dice: Equatable, Identifiable {
+@Observable
+@MainActor
+class Dice: Equatable, Identifiable {
     var value = 1
     var changeAmount = 0.0
     var owner = Player.none
@@ -23,5 +23,9 @@ struct Dice: Equatable, Identifiable {
         self.row = row
         self.column = column
         self.neighbors = neighbors
+    }
+    
+    nonisolated static func == (lhs: Dice, rhs: Dice) -> Bool {
+        lhs.id == rhs.id
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DiceView: View {
-    let dice: Dice
+    @Bindable var dice: Dice
     
     var body: some View {
         ZStack {
@@ -17,12 +17,13 @@ struct DiceView: View {
                 .shadow(color: dice.owner.color.opacity(0.3), radius: 3, x: 0, y: 2)
             diceImage
                 .foregroundStyle(dice.owner.color)
-                .symbolEffect(.bounce, value: dice.value)
                 .contentTransition(.numericText(value: Double(dice.value)))
+                .symbolEffect(.bounce, value: dice.value)
                 .overlay(
                     diceImage
                         .foregroundStyle(.white)
                         .opacity(dice.changeAmount)
+                        .animation(.easeOut(duration: 0.3), value: dice.changeAmount)
                 )
         }
         .aspectRatio(1, contentMode: .fit)

@@ -19,21 +19,24 @@ struct PlayerBadge: View {
             
             Text("\(score)")
                 .font(.system(.body, design: .rounded, weight: .semibold))
+                .contentTransition(.numericText())
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-            #if !os(macOS)
-                .fill(isActive ? player.color.opacity(0.2) : Color(.secondarySystemBackground))
-            #endif
-        )
+        .background {
+            if isActive {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(player.color.opacity(0.2))
+            } else {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(.regularMaterial)
+            }
+        }
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-            #if !os(macOS)
-                .stroke(isActive ? player.color : Color(.separator), lineWidth: 1)
-            #endif
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(isActive ? player.color : Color.gray.opacity(0.3), lineWidth: 1)
         )
+        .animation(.bouncy, value: isActive)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(player.accessibilityName), Score: \(score)")
     }

@@ -19,17 +19,17 @@ struct DualSlider: View {
             VStack(alignment: .leading) {
                 Text(widthLabel)
                     .font(.caption)
-                    .foregroundColor(.secondary)
-                Slider(value: $width, in: range)
-                    .accentColor(.blue)
+                    .foregroundStyle(.secondary)
+                Slider(value: $width, in: range, step: 1.0)
+                    .tint(.blue)
             }
             
             VStack(alignment: .leading) {
                 Text(heightLabel)
                     .font(.caption)
-                    .foregroundColor(.secondary)
-                Slider(value: $height, in: range)
-                    .accentColor(.blue)
+                    .foregroundStyle(.secondary)
+                Slider(value: $height, in: range, step: 1.0)
+                    .tint(.blue)
             }
         }
     }

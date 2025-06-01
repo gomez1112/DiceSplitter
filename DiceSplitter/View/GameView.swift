@@ -14,8 +14,8 @@ struct GameView: View {
     @Binding var playerType: PlayerType
     @Binding var numberOfPlayers: Int
     let resetGame: () -> Void
+    
     var body: some View {
-       // @Bindable var game = game
         NavigationStack {
             ZStack {
                 MeshGradientView()
@@ -29,8 +29,11 @@ struct GameView: View {
                     ScrollView {
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: game.rows.first?.count ?? 5), spacing: 8) {
                             ForEach(game.rows.flatMap { $0 }, id: \.id) { dice in
-                                DiceView(dice: dice)
-                                    .onTapGesture { game.increment(dice) }
+                                Button {
+                                    game.increment(dice)
+                                } label: {
+                                    DiceView(dice: dice)
+                                }
                             }
                         }
                         .padding()
@@ -38,7 +41,6 @@ struct GameView: View {
                     .scrollIndicators(.hidden)
                     
                 }
-                .scrollContentBackground(.visible)
                 .navigationTitle("Dice Splitter")
                 #if !os(macOS)
                 .navigationBarTitleDisplayMode(.inline)
@@ -47,15 +49,11 @@ struct GameView: View {
                     ToolbarItem(placement: .primaryAction) {
                         Menu {
                             Button {
-                                game.reset(rows: Int(mapSize.width), columns: Int(mapSize.height), playerType: playerType, numberOfPlayers: numberOfPlayers)
+                                resetGame()
                             } label: {
-                                Label("New Game", systemImage: "arrow.circlepath")
+                                Label("New Game", systemImage: "arrow.clockwise")
                             }
-                            Button("Reset Game") {
-                                game.reset(rows: Int(mapSize.width), columns: Int(mapSize.height), playerType: playerType, numberOfPlayers: numberOfPlayers)
-                            }
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            Button("Settings", systemImage: "gear", action: { showingSettings.toggle() })
+                            Button("Settings", systemImage: "gear") { showingSettings.toggle() }
                             
                         } label: {
                             Label("Menu", systemImage: "ellipsis.circle")
@@ -68,15 +66,12 @@ struct GameView: View {
                         playerType: $playerType,
                         numberOfPlayers: $numberOfPlayers
                     ) {
-                        
+                       resetGame()
                     }
                 }
                 .overlay {
                     if game.isGameOver {
-                        GameOverOverlay(
-                            winner: game.winner, winnerScore: game.winner.map { game.score(for: $0)} ?? 0,
-                            reset: resetGame
-                        )
+                        GameOverOverlay(winner: game.winner, winnerScore: game.winner.map { game.score(for: $0)} ?? 0, mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, reset: resetGame)
                     }
                 }
             }

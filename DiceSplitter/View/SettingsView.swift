@@ -21,7 +21,7 @@ struct SettingsView: View {
             MeshGradientView()
             ParticleView()
                 .blendMode(.plusLighter)
-            
+
             ScrollView {
                 VStack(spacing: 30) {
                     HStack(spacing: 15) {
@@ -52,8 +52,8 @@ struct SettingsView: View {
                             .padding(.vertical, 8)
                             
                             DualSlider(
-                                widthLabel: "Columns",
-                                heightLabel: "Rows",
+                                widthLabel: "Columns: \(Int(mapSize.width))",
+                                heightLabel: "Rows: \(mapSize.height)",
                                 width: $mapSize.width,
                                 height: $mapSize.height,
                                 range: 3...20
@@ -75,7 +75,7 @@ struct SettingsView: View {
                                 HStack {
                                     Text("AI Opponent")
                                         .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                        .foregroundStyle(.secondary)
                                     
                                     Spacer()
                                     
@@ -83,34 +83,27 @@ struct SettingsView: View {
                                         get: { playerType == .ai },
                                         set: { playerType = $0 ? .ai : .human }
                                     ))
-                                    .toggleStyle(DynamicToggleStyle())
+                                    .toggleStyle(.switch)
                                 }
                             }
-                        
-                        
                     }
                     Button {
                         startGame()
                         dismiss()
                         
-                    }
-                    label: {
+                    } label: {
                         HStack {
                             Text("Start Battle")
                             Image(systemName: "play.fill")
                         }
                         .font(.title3.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(.ultraThinMaterial)
+                                .fill(.blue)
                                 .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(.white.opacity(0.2), lineWidth: 1)
                         )
                     }
                     .buttonStyle(ScalingButtonStyle())
@@ -123,17 +116,12 @@ struct SettingsView: View {
                             Image(systemName: "questionmark.circle.fill")
                         }
                         .font(.title3.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(.ultraThinMaterial)
-                                .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(.white.opacity(0.2), lineWidth: 1)
                         )
                     }
                     .buttonStyle((ScalingButtonStyle()))
@@ -148,30 +136,10 @@ struct ScalingButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.spring(), value: configuration.isPressed)
+            .animation(.spring(response: 0.2), value: configuration.isPressed)
     }
 }
 
-struct DynamicToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.label
-            
-            RoundedRectangle(cornerRadius: 20)
-                .fill(configuration.isOn ? Color.blue : Color.gray.opacity(0.3))
-                .frame(width: 50, height: 30)
-                .overlay(
-                    Circle()
-                        .fill(.white)
-                        .shadow(radius: 2)
-                        .padding(3)
-                        .offset(x: configuration.isOn ? 10 : -10)
-                )
-                .animation(.spring(), value: configuration.isOn)
-                .onTapGesture { configuration.isOn.toggle() }
-        }
-    }
-}
 
 #Preview {
     SettingsView(mapSize: .constant(.init(width: 8, height: 8)), playerType: .constant(.human), numberOfPlayers: .constant(3), startGame: {  })
@@ -179,12 +147,12 @@ struct DynamicToggleStyle: ToggleStyle {
 
 
 // Add this new modifier at the bottom of your file
-struct SettingsCardContentModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .font(.subheadline)
-            .foregroundColor(.primary)
-            .padding(.horizontal, 8)
-    }
-}
+//struct SettingsCardContentModifier: ViewModifier {
+//    func body(content: Content) -> some View {
+//        content
+//            .font(.subheadline)
+//            .foregroundColor(.primary)
+//            .padding(.horizontal, 8)
+//    }
+//}
 

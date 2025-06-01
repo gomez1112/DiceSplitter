@@ -20,28 +20,9 @@ struct ContentView: View {
                 if let game {
                     ZStack {
                         GameView(game: game, mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, resetGame: {
-                            self.game = Game(
-                                rows: Int(mapSize.width),
-                                columns: Int(mapSize.height),
-                                playerType: playerType,
-                                numberOfPlayers: numberOfPlayers)
-                        })
-                            .navigationTitle("Dice Splitter")
-                            #if !os(macOS)
-                            .navigationBarTitleDisplayMode(.inline)
-                            #endif
-                            .blur(radius: game.isGameOver ? 10 : 0)
-                        if game.isGameOver {
-                            GameOverOverlay(winner: game.winner, winnerScore: game.winner.map { game.score(for: $0)} ?? 0) {
-                                self.game = Game(
-                                    rows: Int(mapSize.width),
-                                    columns: Int(mapSize.height),
-                                    playerType: playerType,
-                                    numberOfPlayers: numberOfPlayers
-                                )
-                            }
-                            
+                            startGame()
                         }
+                        )
                     }
                 } else {
                     SettingsView(mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers, startGame: startGame)

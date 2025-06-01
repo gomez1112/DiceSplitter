@@ -24,17 +24,17 @@ struct OnboardingExplanation: View {
             Text(title)
                 .font(.title.bold())
                 .multilineTextAlignment(.center)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
             
             Text(description)
                 .font(.body)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 30)
             
             Text(hint)
                 .font(.footnote)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundStyle(.white.opacity(0.7))
                 .italic()
         }
     }

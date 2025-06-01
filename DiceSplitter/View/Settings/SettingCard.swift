@@ -10,13 +10,13 @@ import SwiftUI
 struct SettingCard<Content: View>: View {
     let title: String
     let icon: String
-    @ViewBuilder var content:  () -> Content
+    @ViewBuilder var content: () -> Content
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
                     .font(.title3)
                 Text(title)
                     .font(.headline.bold())
@@ -24,7 +24,6 @@ struct SettingCard<Content: View>: View {
             }
             
             content()
-             .settingsCardContentStyle()
         }
         .padding()
         .background(

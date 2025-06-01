@@ -11,6 +11,11 @@ import SwiftUI
 struct GameOverOverlay: View {
     let winner: Player?
     let winnerScore: Int
+    @Binding var mapSize: CGSize
+    @Binding var playerType: PlayerType
+    @Binding var numberOfPlayers: Int
+    @State private var isShowingSettings = false
+    
     let reset: () -> Void
     
     var body: some View {
@@ -39,7 +44,7 @@ struct GameOverOverlay: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                HStack {
+                HStack(spacing: 12) {
                     Button(action: reset) {
                         Label("Play Again", systemImage: "arrow.clockwise")
                             .font(.system(.body, design: .rounded, weight: .semibold))
@@ -49,18 +54,16 @@ struct GameOverOverlay: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(winner?.color ?? .blue)
-                    NavigationLink {
-                        ContentView()
+                    Button {
+                        isShowingSettings = true
                     } label: {
-                        Label("Game", systemImage: "gear")
+                        Label("Settings", systemImage: "gear")
                             .font(.system(.body, design: .rounded, weight: .semibold))
                             .padding(.vertical, 12)
                             .padding(.horizontal, 24)
                             .frame(minWidth: 160)
-                            .foregroundStyle(.white)
-                            
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
                     .tint(.blue)
                 }
             }
@@ -68,11 +71,17 @@ struct GameOverOverlay: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             .padding()
             .transition(.scale.combined(with: .opacity))
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView(mapSize: $mapSize, playerType: $playerType, numberOfPlayers: $numberOfPlayers) {
+                    isShowingSettings = false
+                    reset()
+                }
+            }
         }
         .animation(.spring(duration: 0.5, bounce: 0.7), value: winner)
     }
 }
 
 #Preview {
-    GameOverOverlay(winner: Player.green, winnerScore: 10, reset: {})
+    GameOverOverlay(winner: .blue, winnerScore: 20, mapSize: .constant(CGSize(width: 3, height: 3)), playerType: .constant(.human), numberOfPlayers: .constant(2), reset: {})
 }
