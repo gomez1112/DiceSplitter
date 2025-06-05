@@ -16,13 +16,17 @@ struct ContentView: View {
     @State private var numberOfPlayers = 3
     @State private var aiDifficulty: AIDifficulty = .medium
     @Query private var stats: [Statistics]
-    
+    @Environment(\.modelContext) private var modelContext
+
     private var stat: Statistics {
         // Get or create statistics
         if let existingStats = stats.first {
             return existingStats
         }
-        return Statistics()
+        let newStats = Statistics()
+        modelContext.insert(newStats)
+        try? modelContext.save()
+        return newStats
     }
     var body: some View {
 #if os(macOS)

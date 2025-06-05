@@ -10,6 +10,7 @@ import SwiftUI
 
 struct StatisticsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let stats: Statistics
     @State private var selectedTab = 0
     
@@ -50,6 +51,7 @@ struct StatisticsView: View {
                     Menu {
                         Button("Reset Statistics", role: .destructive) {
                             stats.resetStatistics()
+                            try? modelContext.save()
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
