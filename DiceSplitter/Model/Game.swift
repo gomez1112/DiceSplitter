@@ -75,8 +75,9 @@ final class Game {
         
         // Start AI turn if needed
         if playerType == .ai && activePlayer == .red {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.executeAITurn()
+            Task {
+                try? await Task.sleep(for: .seconds(0.5))
+                executeAITurn()
             }
         }
     }
@@ -243,12 +244,11 @@ final class Game {
         rows[row][col].owner = activePlayer
         rows[row][col].changeAmount = 1
         
+        
         // Animate the change amount back to 0
-        DispatchQueue.main.async {
             withAnimation(.easeOut(duration: 0.3)) {
                 self.rows[row][col].changeAmount = 0
             }
-        }
         
         if rows[row][col].value > rows[row][col].neighbors {
             rows[row][col].value = 1
@@ -271,15 +271,14 @@ final class Game {
         for (row, col) in toChange {
             bump(row: row, col: col)
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            self.runChanges()
+        Task {
+            try? await Task.sleep(for: .seconds(0.25))
+            runChanges()
         }
     }
     
     private func nextTurn() {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }
-        let originalIndex = currentIndex
         var nextIndex = (currentIndex + 1) % players.count
         var attempts = 0
         
@@ -299,8 +298,9 @@ final class Game {
         
         if activePlayer == .red && playerType == .ai {
             state = .thinking
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.executeAITurn()
+            Task {
+                try? await Task.sleep(for: .seconds(0.5))
+                    executeAITurn()
             }
         } else {
             state = .waiting
