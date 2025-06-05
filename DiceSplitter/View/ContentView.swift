@@ -39,7 +39,7 @@ struct ContentView: View {
     private func startGame() {
         let width = max(3, Int(mapSize.width))
         let height = max(3, Int(mapSize.height))
-        game = Game(rows: width, columns: height, playerType: playerType, numberOfPlayers: numberOfPlayers)
+        game = Game(rows: height, columns: width, playerType: playerType, numberOfPlayers: numberOfPlayers)
     }
 }
 
