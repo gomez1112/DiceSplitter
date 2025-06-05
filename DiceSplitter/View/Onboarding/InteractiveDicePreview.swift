@@ -10,7 +10,7 @@ import SwiftUI
 struct InteractiveDicePreview: View {
     @State private var dice = Dice(row: 0, column: 0, neighbors: 3)
     @State private var tapCount = 0
-    
+
     var body: some View {
         VStack(spacing: 20) {
             DiceView(dice: dice)

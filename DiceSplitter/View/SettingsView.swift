@@ -13,31 +13,61 @@ struct SettingsView: View {
     @Binding var mapSize: CGSize
     @Binding var playerType: PlayerType
     @Binding var numberOfPlayers: Int
+    @Binding var aiDifficulty: AIDifficulty
+    let showingWarning: Bool
     var startGame: () -> Void
     
+    @State private var showingResetGameWarning = false
+    @State private var audio = Audio()
     
     var body: some View {
+#if os(macOS)
+        settingsContent
+            .frame(minWidth: 500, minHeight: 600)
+#else
+        NavigationStack {
+            settingsContent
+                .navigationTitle("Settings")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                    }
+                }
+        }
+#endif
+    }
+    
+    var settingsContent: some View {
         ZStack {
             MeshGradientView()
             ParticleView()
                 .blendMode(.plusLighter)
-
+            
             ScrollView {
                 VStack(spacing: 30) {
-                    HStack(spacing: 15) {
-                        ForEach(1...3, id: \.self) { i in
-                            Image(systemName: "die.face.\(i).fill")
-                                .font(.largeTitle)
-                                .rotationEffect(.degrees(i == 2 ? 15 : -15))
-                                .scaleEffect(i == 2 ? 1.2 : 1)
+                    // Header
+                    VStack(spacing: 15) {
+                        HStack(spacing: 15) {
+                            ForEach(1...3, id: \.self) { i in
+                                Image(systemName: "die.face.\(i).fill")
+                                    .font(.largeTitle)
+                                    .rotationEffect(.degrees(i == 2 ? 15 : -15))
+                                    .scaleEffect(i == 2 ? 1.2 : 1)
+                            }
                         }
-                    }
-                    .foregroundStyle(.white)
-                    Text("Game Configuration")
-                        .font(.system(.largeTitle, design: .rounded, weight: .black))
                         .foregroundStyle(.white)
-                        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 2)
+                        
+                        Text("Game Configuration")
+                            .font(.system(.largeTitle, design: .rounded, weight: .black))
+                            .foregroundStyle(.white)
+                            .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 2)
+                    }
+                    
                     VStack(spacing: 20) {
+                        // Board Size Setting
                         SettingCard(title: "Board Size", icon: "square.grid.3x3.fill") {
                             HStack {
                                 Text("\(Int(mapSize.width))x\(Int(mapSize.height))")
@@ -53,81 +83,130 @@ struct SettingsView: View {
                             
                             DualSlider(
                                 widthLabel: "Columns: \(Int(mapSize.width))",
-                                heightLabel: "Rows: \(mapSize.height)",
+                                heightLabel: "Rows: \(Int(mapSize.height))",
                                 width: $mapSize.width,
                                 height: $mapSize.height,
-                                range: 3...20
-                            )}
-                            SettingCard(title: "Players", icon: "person.3.fill") {
-                                HStack {
-                                    ForEach(2...4, id: \.self) { count in
-                                        PlayerCountButton(
-                                            count: count,
-                                            isSelected: numberOfPlayers == count
-                                        ) {
-                                            numberOfPlayers = count
-                                        }
-                                        .frame(maxWidth: .infinity)
+                                range: 3...12 // Limited to reasonable size
+                            )
+                        }
+                        
+                        // Players Setting
+                        SettingCard(title: "Players", icon: "person.3.fill") {
+                            HStack {
+                                ForEach(2...4, id: \.self) { count in
+                                    PlayerCountButton(
+                                        count: count,
+                                        isSelected: numberOfPlayers == count
+                                    ) {
+                                        numberOfPlayers = count
                                     }
+                                    .frame(maxWidth: .infinity)
                                 }
-                                .padding(.vertical, 8)
-                                
-                                HStack {
-                                    Text("AI Opponent")
+                            }
+                            .padding(.vertical, 8)
+                            
+                            Toggle("AI Opponent", isOn: Binding(
+                                get: { playerType == .ai },
+                                set: { playerType = $0 ? .ai : .human }
+                            ))
+                            .toggleStyle(.switch)
+                            
+                            if playerType == .ai {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("AI Difficulty")
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                     
-                                    Spacer()
-                                    
-                                    Toggle("", isOn: Binding(
-                                        get: { playerType == .ai },
-                                        set: { playerType = $0 ? .ai : .human }
-                                    ))
-                                    .toggleStyle(.switch)
+                                    Picker("Difficulty", selection: $aiDifficulty) {
+                                        ForEach(AIDifficulty.allCases, id: \.self) { difficulty in
+                                            Text(difficulty.rawValue).tag(difficulty)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
                                 }
+                                .padding(.top, 8)
                             }
-                    }
-                    Button {
-                        startGame()
-                        dismiss()
+                        }
                         
-                    } label: {
-                        HStack {
-                            Text("Start Battle")
-                            Image(systemName: "play.fill")
+                        // Sound Settings
+                        SettingCard(title: "Audio", icon: "speaker.wave.2.fill") {
+                            Toggle("Sound Effects", isOn: $audio.soundEnabled)
+                                .toggleStyle(.switch)
+                            
+#if os(iOS)
+                            Toggle("Haptic Feedback", isOn: $audio.hapticEnabled)
+                                .toggleStyle(.switch)
+#endif
                         }
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.blue)
-                                .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
-                        )
                     }
-                    .buttonStyle(ScalingButtonStyle())
-                    Button {
-                        hasCompletedOnboarding = false
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Text("Show Onboarding")
-                            Image(systemName: "questionmark.circle.fill")
+                    
+                    // Action Buttons
+                    VStack(spacing: 16) {
+                        Button {
+                            if showingWarning {
+                                showingResetGameWarning = true
+                            } else {
+                                startGame()
+                                dismiss()
+                            }
+                        } label: {
+                            HStack {
+                                Text("Start Battle")
+                                Image(systemName: "play.fill")
+                            }
+                            .font(.title3.bold())
+                            .foregroundStyle(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.blue)
+                                    .shadow(color: .blue.opacity(0.4), radius: 10, x: 0, y: 5)
+                            )
                         }
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.ultraThinMaterial)
-                        )
+                        .buttonStyle(ScalingButtonStyle())
+                        
+                        Button {
+                            hasCompletedOnboarding = false
+                            dismiss()
+                        } label: {
+                            HStack {
+                                Text("Show Tutorial")
+                                Image(systemName: "questionmark.circle.fill")
+                            }
+                            .font(.title3.bold())
+                            .foregroundStyle(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.ultraThinMaterial)
+                            )
+                        }
+                        .buttonStyle(ScalingButtonStyle())
+                        
+#if os(macOS)
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .buttonStyle(.bordered)
+#endif
                     }
-                    .buttonStyle((ScalingButtonStyle()))
                 }
                 .padding()
             }
+#if os(iOS)
+            .scrollDismissesKeyboard(.interactively)
+#endif
+        }
+        .confirmationDialog("Start New Game?", isPresented: $showingResetGameWarning) {
+            Button("Start New Game", role: .destructive) {
+                startGame()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your current game progress will be lost.")
         }
     }
 }
@@ -142,17 +221,7 @@ struct ScalingButtonStyle: ButtonStyle {
 
 
 #Preview {
-    SettingsView(mapSize: .constant(.init(width: 8, height: 8)), playerType: .constant(.human), numberOfPlayers: .constant(3), startGame: {  })
+    SettingsView(mapSize: .constant(.init(width: 8, height: 8)), playerType: .constant(.human), numberOfPlayers: .constant(3), aiDifficulty: .constant(.medium), showingWarning: true, startGame: {  })
 }
 
-
-// Add this new modifier at the bottom of your file
-//struct SettingsCardContentModifier: ViewModifier {
-//    func body(content: Content) -> some View {
-//        content
-//            .font(.subheadline)
-//            .foregroundColor(.primary)
-//            .padding(.horizontal, 8)
-//    }
-//}
 

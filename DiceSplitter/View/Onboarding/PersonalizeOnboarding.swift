@@ -11,6 +11,7 @@ struct PersonalizeOnboarding: View {
     @Binding var mapSize: CGSize
     @Binding var playerType: PlayerType
     @Binding var numberOfPlayers: Int
+    @Binding var aiDifficulty: AIDifficulty
     let onComplete: () -> Void
     
     var body: some View {
@@ -33,9 +34,8 @@ struct PersonalizeOnboarding: View {
                     heightLabel: "Rows",
                     width: $mapSize.width,
                     height: $mapSize.height,
-                    range: 3...20
+                    range: 3...12
                 )
-                
             }
             
             SettingCard(title: "Players", icon: "person.3.fill") {
@@ -56,11 +56,27 @@ struct PersonalizeOnboarding: View {
                     set: { playerType = $0 ? .ai : .human }
                 ))
                 .toggleStyle(.switch)
+                
+                if playerType == .ai {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("AI Difficulty")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        Picker("Difficulty", selection: $aiDifficulty) {
+                            ForEach(AIDifficulty.allCases, id: \.self) { difficulty in
+                                Text(difficulty.rawValue).tag(difficulty)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .padding(.top, 8)
+                }
             }
         }
     }
 }
 
 #Preview {
-    PersonalizeOnboarding(mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3), onComplete: {})
+    PersonalizeOnboarding(mapSize: .constant(.zero), playerType: .constant(.ai), numberOfPlayers: .constant(3), aiDifficulty: .constant(.medium), onComplete: {})
 }
