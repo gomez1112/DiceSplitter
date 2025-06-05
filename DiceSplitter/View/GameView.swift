@@ -5,9 +5,11 @@
 //  Created by Gerard Gomez on 1/26/25.
 //
 
+import SwiftData
 import SwiftUI
 
 struct GameView: View {
+    @Environment(\.modelContext) private var context
     let game: Game
     @State private var showingSettings = false
     @State private var showingNewGameConfirmation = false
