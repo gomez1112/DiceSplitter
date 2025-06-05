@@ -169,13 +169,59 @@ struct DiceSplitterTests {
     @Test
     func winnerTie() async {
         let game = Game(rows: 2, columns: 2, playerType: .human, numberOfPlayers: 2)
-        
+
         // Split ownership between players
         game.rows[0][0].owner = .green
         game.rows[0][1].owner = .green
         game.rows[1][0].owner = .red
         game.rows[1][1].owner = .red
-        
+
         #expect(game.winner == nil)
+    }
+
+    /// Test that a dice exploding triggers a chain reaction to its neighbors
+    @Test
+    func chainReaction() async throws {
+        let game = Game(rows: 2, columns: 2, playerType: .human, numberOfPlayers: 2)
+        let dice = game.rows[0][0]
+
+        // Prepare the dice so the next increment causes an explosion
+        dice.value = dice.neighbors
+
+        let neighbor1 = game.rows[0][1]
+        let neighbor2 = game.rows[1][0]
+
+        game.increment(dice)
+
+        // Allow async change processing to finish
+        try await Task.sleep(for: .seconds(0.6))
+
+        #expect(dice.value == 1)
+        #expect(neighbor1.value == 2)
+        #expect(neighbor2.value == 2)
+        // Active player should advance to the next one
+        #expect(game.activePlayer == game.players[1])
+    }
+
+    /// Winner is the player with the highest score when no moves remain
+    @Test
+    func winnerClearLead() async {
+        let game = Game(rows: 2, columns: 2, playerType: .human, numberOfPlayers: 2)
+
+        // Block all moves
+        for row in game.rows {
+            for dice in row {
+                dice.value = dice.neighbors + 1
+            }
+        }
+
+        // Give green three dice and red one
+        game.rows[0][0].owner = .green
+        game.rows[0][1].owner = .green
+        game.rows[1][0].owner = .green
+        game.rows[1][1].owner = .red
+
+        #expect(game.isGameOver == true)
+        #expect(game.winner == .green)
     }
 }

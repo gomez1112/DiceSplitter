@@ -31,6 +31,26 @@ final class DiceSplitterUITests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 
+    /// Walk through the onboarding flow and verify the game screen appears
+    @MainActor
+    func testOnboardingFlow() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        // First screen of onboarding
+        XCTAssertTrue(app.staticTexts["Welcome to DiceSplitter"].waitForExistence(timeout: 2))
+
+        // Step through to the last page
+        for _ in 0..<4 { app.buttons["Next"].tap() }
+
+        // Ensure the final button exists
+        XCTAssertTrue(app.buttons["Get Started"].waitForExistence(timeout: 2))
+        app.buttons["Get Started"].tap()
+
+        // After completing onboarding, the main game view should be visible
+        XCTAssertTrue(app.navigationBars["Dice Splitter"].waitForExistence(timeout: 2))
+    }
+
     @MainActor
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
