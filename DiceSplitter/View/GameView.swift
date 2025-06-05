@@ -21,6 +21,7 @@ struct GameView: View {
     let resetGame: () -> Void
     
     @Environment(Audio.self) private var audio
+    @Environment(\.modelContext) private var modelContext
     let stats: Statistics
     
     var body: some View {
@@ -182,6 +183,7 @@ struct GameView: View {
                                     moves: game.totalMoves,
                                     difficulty: aiDifficulty
                                 )
+                                try? modelContext.save()
                                 
                                 if game.winner == game.activePlayer {
                                     audio.playSound(.win)
