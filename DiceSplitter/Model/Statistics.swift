@@ -4,16 +4,9 @@
 //
 //  Created by Gerard Gomez on 6/5/25.
 //
-//
-//  Statistics.swift
-//  DiceSplitter
-//
-//  Created by Gerard Gomez on 6/5/25.
-//
 
 import Foundation
 import SwiftData
-
 
 @Model
 class Statistics {
@@ -43,7 +36,14 @@ class Statistics {
         return Double(totalWins) / Double(totalGamesPlayed) * 100
     }
     
+    // FIXED: Added validation and error handling
     func recordGameResult(winner: Player?, playerType: PlayerType, boardSize: Int, duration: TimeInterval, moves: Int, difficulty: AIDifficulty) {
+        // Validate inputs
+        guard boardSize > 0, duration >= 0, moves >= 0 else {
+            print("Invalid game result parameters")
+            return
+        }
+        
         totalGamesPlayed += 1
         totalMovesPlayed += moves
         
@@ -53,7 +53,8 @@ class Statistics {
                 winStreak += 1
                 bestWinStreak = max(bestWinStreak, winStreak)
                 
-                if duration < fastestWin {
+                // FIXED: Only record fastest win if it's a valid time
+                if duration > 0 && duration < fastestWin {
                     fastestWin = duration
                     checkAchievement(.speedDemon)
                 }
@@ -130,5 +131,13 @@ class Statistics {
         hardWins = 0
         expertWins = 0
         // Keep achievements unlocked
+    }
+    
+    // FIXED: Added computed property for formatted fastest win
+    var formattedFastestWin: String? {
+        guard fastestWin < 999999.0 else { return nil }
+        let minutes = Int(fastestWin) / 60
+        let seconds = Int(fastestWin) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }

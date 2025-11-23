@@ -69,8 +69,8 @@ struct StatisticsView: View {
 #endif
         }
         .ignoresSafeArea(edges: .top)
-    
     }
+    
     // MARK: - Background
     var backgroundView: some View {
         ZStack {
@@ -79,16 +79,19 @@ struct StatisticsView: View {
             particleEffect
         }
     }
+    
     @ViewBuilder
     private var particleEffect: some View {
         ParticleField()
             .opacity(0.6)
     }
+    
     private var animatedMeshGradient: some View {
         TimelineView(.animation) { timeline in
             meshGradientView(time: timeline.date.timeIntervalSince1970)
         }
     }
+    
     private func meshGradientView(time: TimeInterval) -> some View {
         MeshGradient(
             width: 4,
@@ -109,6 +112,7 @@ struct StatisticsView: View {
         .opacity(0.5)
         .blur(radius: 30)
     }
+    
     private var gradientBackground: some View {
         LinearGradient(
             stops: [
@@ -148,19 +152,19 @@ struct StatisticsView: View {
             HStack(spacing: 30) {
                 QuickStat(
                     value: "\(stats.totalGamesPlayed)",
-                    label: "Games",
+                    label: String(localized: "games_label"),
                     color: ColorTheme.primary
                 )
                 
                 QuickStat(
                     value: String(format: "%.0f%%", stats.winRate),
-                    label: "Win Rate",
+                    label: String(localized: "win_rate_label"),
                     color: ColorTheme.success
                 )
                 
                 QuickStat(
                     value: "\(stats.bestWinStreak)",
-                    label: "Best Streak",
+                    label: String(localized: "best_streak_label"),
                     color: ColorTheme.accent
                 )
             }
@@ -173,7 +177,7 @@ struct StatisticsView: View {
             VStack(spacing: 20) {
                 // Performance Overview with Chart
                 StatCard(
-                    title: "Performance Overview",
+                    title: String(localized: "performance_overview"),
                     icon: "chart.line.uptrend.xyaxis",
                     iconColor: ColorTheme.primary
                 ) {
@@ -192,7 +196,7 @@ struct StatisticsView: View {
                         VStack(spacing: 12) {
                             StatRow(
                                 icon: "checkmark.circle.fill",
-                                label: "Wins",
+                                label: String(localized: "wins_label"),
                                 value: "\(stats.totalWins)",
                                 color: ColorTheme.success,
                                 progress: Double(stats.totalWins) / Double(max(stats.totalGamesPlayed, 1))
@@ -200,7 +204,7 @@ struct StatisticsView: View {
                             
                             StatRow(
                                 icon: "xmark.circle.fill",
-                                label: "Losses",
+                                label: String(localized: "losses_label"),
                                 value: "\(stats.totalLosses)",
                                 color: ColorTheme.error,
                                 progress: Double(stats.totalLosses) / Double(max(stats.totalGamesPlayed, 1))
@@ -208,7 +212,7 @@ struct StatisticsView: View {
                             
                             StatRow(
                                 icon: "equal.circle.fill",
-                                label: "Draws",
+                                label: String(localized: "draws_label"),
                                 value: "\(stats.totalDraws)",
                                 color: ColorTheme.warning,
                                 progress: Double(stats.totalDraws) / Double(max(stats.totalGamesPlayed, 1))
@@ -220,14 +224,14 @@ struct StatisticsView: View {
                 // Streaks & Records
                 HStack(spacing: 16) {
                     MiniStatCard(
-                        title: "Current Streak",
+                        title: String(localized: "current_streak"),
                         value: "\(stats.winStreak)",
                         icon: "flame.fill",
                         color: stats.winStreak > 0 ? ColorTheme.accent : ColorTheme.tertiaryText
                     )
                     
                     MiniStatCard(
-                        title: "Total Moves",
+                        title: String(localized: "total_moves"),
                         value: formatNumber(stats.totalMovesPlayed),
                         icon: "hand.tap.fill",
                         color: ColorTheme.info
@@ -237,34 +241,34 @@ struct StatisticsView: View {
                 // Difficulty Breakdown
                 if stats.totalWins > 0 {
                     StatCard(
-                        title: "Wins by Difficulty",
+                        title: String(localized: "wins_by_difficulty"),
                         icon: "brain",
                         iconColor: ColorTheme.secondary
                     ) {
                         VStack(spacing: 16) {
                             DifficultyProgressBar(
-                                difficulty: "Easy",
+                                difficulty: String(localized: "difficulty_easy"),
                                 wins: stats.easyWins,
                                 total: stats.totalWins,
                                 color: ColorTheme.success
                             )
                             
                             DifficultyProgressBar(
-                                difficulty: "Medium",
+                                difficulty: String(localized: "difficulty_medium"),
                                 wins: stats.mediumWins,
                                 total: stats.totalWins,
                                 color: ColorTheme.warning
                             )
                             
                             DifficultyProgressBar(
-                                difficulty: "Hard",
+                                difficulty: String(localized: "difficulty_hard"),
                                 wins: stats.hardWins,
                                 total: stats.totalWins,
                                 color: ColorTheme.accent
                             )
                             
                             DifficultyProgressBar(
-                                difficulty: "Expert",
+                                difficulty: String(localized: "difficulty_expert"),
                                 wins: stats.expertWins,
                                 total: stats.totalWins,
                                 color: ColorTheme.error
@@ -275,31 +279,32 @@ struct StatisticsView: View {
                 
                 // Records
                 StatCard(
-                    title: "Personal Records",
+                    title: String(localized: "personal_records"),
                     icon: "medal.fill",
                     iconColor: ColorTheme.warning
                 ) {
                     VStack(spacing: 16) {
-                        if stats.fastestWin < 999999.0 {
+                        // FIXED: Use formattedFastestWin property
+                        if let fastestWin = stats.formattedFastestWin {
                             RecordRow(
                                 icon: "timer",
-                                label: "Fastest Win",
-                                value: formatTime(stats.fastestWin),
+                                label: String(localized: "fastest_win"),
+                                value: fastestWin,
                                 color: ColorTheme.info
                             )
                         }
                         
                         RecordRow(
                             icon: "square.grid.3x3.fill",
-                            label: "Largest Board Conquered",
-                            value: "\(stats.largestBoardConquered) tiles",
+                            label: String(localized: "largest_board"),
+                            value: String(localized: "tiles_count \(stats.largestBoardConquered)"),
                             color: ColorTheme.primary
                         )
                         
                         if stats.totalGamesPlayed > 0 {
                             RecordRow(
                                 icon: "divide.circle.fill",
-                                label: "Average Moves per Game",
+                                label: String(localized: "average_moves"),
                                 value: "\(stats.totalMovesPlayed / stats.totalGamesPlayed)",
                                 color: ColorTheme.secondary
                             )
@@ -339,12 +344,6 @@ struct StatisticsView: View {
     }
     
     // MARK: - Helper Functions
-    private func formatTime(_ interval: TimeInterval) -> String {
-        let minutes = Int(interval) / 60
-        let seconds = Int(interval) % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
-    
     private func formatNumber(_ number: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal

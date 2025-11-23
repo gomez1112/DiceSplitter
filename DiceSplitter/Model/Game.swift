@@ -22,6 +22,7 @@ final class Game {
     private var playerType: PlayerType
     private var numberOfPlayers: Int
     private var isProcessingChanges = false
+    private var changeProcessingTask: Task<Void, Never>?
     
     var activePlayer: Player
     var players: [Player]
@@ -40,7 +41,7 @@ final class Game {
     
     // AI thinking indicator
     var isAIThinking = false
-
+    
     init(rows: Int, columns: Int, playerType: PlayerType, numberOfPlayers: Int, aiDifficulty: AIDifficulty = .medium) {
         self.numRows = rows
         self.numCols = columns
@@ -61,6 +62,11 @@ final class Game {
         self.gameStartTime = Date()
     }
     
+    isolated deinit {
+        // Clean up any pending tasks
+        changeProcessingTask?.cancel()
+    }
+    
     private func countNeighbors(row: Int, col: Int) -> Int {
         var result = 0
         
@@ -76,6 +82,10 @@ final class Game {
             print("Invalid game parameters")
             return
         }
+        
+        // Cancel any pending tasks
+        changeProcessingTask?.cancel()
+        
         self.numRows = rows
         self.numCols = columns
         
@@ -109,8 +119,9 @@ final class Game {
             }
         }
     }
+    
     var canUndo: Bool {
-        !moveHistory.isEmpty && state == .waiting && activePlayer != .red && isPaused
+        !moveHistory.isEmpty && state == .waiting && activePlayer != .red && !isPaused
     }
     
     func undo() {
@@ -173,6 +184,7 @@ final class Game {
         }
         return nil
     }
+    
     // Enhanced AI with minimax algorithm
     private func evaluateBoard(for player: Player) -> Int {
         var score = 0
@@ -201,7 +213,7 @@ final class Game {
         return score
     }
     
-    // Game.swift
+    // FIXED: Added fallback for nil dice
     private func minimax(depth: Int, isMaximizing: Bool, alpha: Int, beta: Int, player: Player) -> (score: Int, dice: Dice?) {
         if depth == 0 || isGameOver { return (evaluateBoard(for: player), nil) }
         
@@ -243,8 +255,8 @@ final class Game {
             return (minEval, nil)
         }
     }
-
     
+    // FIXED: Added fallback to random move if minimax returns nil
     private func getBestMove() -> Dice? {
         switch aiDifficulty {
             case .easy:
@@ -253,7 +265,9 @@ final class Game {
                 return getMediumMove()
             case .hard, .expert:
                 let depth = aiDifficulty.searchDepth
-                return minimax(depth: depth, isMaximizing: true, alpha: Int.min, beta: Int.max, player: .red).dice
+                let result = minimax(depth: depth, isMaximizing: true, alpha: Int.min, beta: Int.max, player: .red)
+                // Fallback to random move if minimax couldn't find a move
+                return result.dice ?? getRandomValidMove()
         }
     }
     
@@ -409,8 +423,11 @@ final class Game {
         }
     }
     
-    // Game.swift
+    // FIXED: Better race condition handling with Task cancellation
     private func runChanges() {
+        // Cancel any existing processing task
+        changeProcessingTask?.cancel()
+        
         guard !isProcessingChanges else { return }
         isProcessingChanges = true
         
@@ -428,13 +445,18 @@ final class Game {
             bump(row: row, col: col)
         }
         
-        Task {
+        changeProcessingTask = Task {
             try? await Task.sleep(for: .seconds(0.25))
+            
+            guard !Task.isCancelled else {
+                isProcessingChanges = false
+                return
+            }
+            
             isProcessingChanges = false
-            runChanges() // process next wave if any
+            runChanges()
         }
     }
-
     
     private func nextTurn() {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }

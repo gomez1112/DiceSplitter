@@ -16,6 +16,7 @@ struct DiceView: View {
     @State private var explosionParticles: [ExplosionParticle] = []
     @State private var isPressed = false
     @State private var pulseAnimation = false
+    @State private var pulseTask: Task<Void, Never>? // FIXED: Track animation task
     @Environment(Audio.self) private var audio
     
     var body: some View {
@@ -27,7 +28,6 @@ struct DiceView: View {
                     .blur(radius: 20)
                     .opacity(pulseAnimation ? 0.4 : 0.2)
                     .scaleEffect(pulseAnimation ? 1.2 : 1.0)
-                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: pulseAnimation)
             }
             
             // Main dice container
@@ -118,8 +118,8 @@ struct DiceView: View {
         .aspectRatio(1, contentMode: .fit)
         .padding(4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(dice.value) dots, \(dice.owner.accessibilityName)")
-        .accessibilityHint("Double tap to claim for \(dice.owner == .none ? "yourself" : "reinforce")")
+        .accessibilityLabel("dice_value " + String(describing: dice.value) + " " + String(describing: dice.owner.accessibilityName))
+        .accessibilityHint(dice.owner == .none ? ("dice_hint " + String(describing: dice.owner.displayName)) : "dice_hint_reinforce")
         .overlay(alignment: .topTrailing) {
             if dice.owner != .none {
                 ownershipBadge
@@ -130,8 +130,13 @@ struct DiceView: View {
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         .onAppear {
             if dice.owner != .none {
-                pulseAnimation = true
+                startPulseAnimation()
             }
+        }
+        .onDisappear {
+            // FIXED: Cancel animation task on disappear
+            pulseTask?.cancel()
+            pulseTask = nil
         }
         .onChange(of: dice.value) { oldValue, newValue in
             // Check if dice exploded (value reset to 1)
@@ -141,9 +146,11 @@ struct DiceView: View {
         }
         .onChange(of: dice.owner) { _, newOwner in
             if newOwner != .none {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    pulseAnimation = true
-                }
+                startPulseAnimation()
+            } else {
+                pulseTask?.cancel()
+                pulseTask = nil
+                pulseAnimation = false
             }
         }
     }
@@ -188,6 +195,21 @@ struct DiceView: View {
         .scaleEffect(isExploding ? 0 : 1)
     }
     
+    // FIXED: Proper animation lifecycle management
+    private func startPulseAnimation() {
+        pulseTask?.cancel()
+        pulseTask = Task {
+            while !Task.isCancelled {
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 2)) {
+                        pulseAnimation.toggle()
+                    }
+                }
+                try? await Task.sleep(for: .seconds(2))
+            }
+        }
+    }
+    
     private func triggerExplosion() {
         // Create explosion particles with enhanced effects
         explosionParticles = (0..<20).map { _ in
@@ -223,11 +245,13 @@ struct DiceView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 isExploding = false
             }
-            explosionParticles.removeAll()
+            // FIXED: Ensure cleanup happens
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                explosionParticles.removeAll()
+            }
         }
     }
 }
-
 
 #Preview {
     DiceView(dice: Dice(row: 8, column: 11, neighbors: 3))

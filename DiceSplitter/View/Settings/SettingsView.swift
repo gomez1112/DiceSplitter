@@ -30,16 +30,16 @@ struct SettingsView: View {
         settingsContent
             .frame(minWidth: 500, minHeight: 600)
 #else
-            settingsContent
-                .navigationTitle("Settings")
-            #if !os(macOS)
-                .navigationBarTitleDisplayMode(.inline)
-            #endif
+        settingsContent
+            .navigationTitle("Settings")
+#if !os(macOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
 #endif
     }
     var settingsContent: some View {
         ZStack {
-
+            
             backgroundView
             ScrollView {
                 VStack(spacing: 30) {
@@ -86,6 +86,7 @@ struct SettingsView: View {
                         }
                     }
                     .padding(.horizontal)
+                    appVersionFooter
                 }
             }
 #if os(iOS)
@@ -109,7 +110,7 @@ struct SettingsView: View {
             gradientBackground
             animatedMeshGradient
             particleEffect
-        
+            
         }
     }
     @ViewBuilder
@@ -314,6 +315,7 @@ struct SettingsView: View {
                         removal: .scale(scale: 1.1).combined(with: .opacity)
                     ))
                 }
+                
             }
         }
     }
@@ -372,6 +374,18 @@ struct SettingsView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    var appVersionFooter: some View {
+        VStack(spacing: 8) {
+            Text(String(localized: "app_version \(Bundle.main.appVersion)"))
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(ColorTheme.tertiaryText)
+            
+            Text(String(localized: "build_number \(Bundle.main.buildNumber)"))
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(ColorTheme.tertiaryText.opacity(0.7))
+        }
+        .padding(.top, 20)
     }
 }
 

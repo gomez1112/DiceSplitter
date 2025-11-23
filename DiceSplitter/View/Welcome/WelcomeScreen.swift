@@ -25,73 +25,78 @@ struct WelcomeScreen: View {
     
     // Interactive states
     @State private var selectedDice: Int? = nil
-    @State private var dragOffset = CGSize.zero
-    @State private var isDragging = false
     
     var body: some View {
-        ZStack {
-            backgroundView
-            
-            ScrollView {
-                floatingDiceDecoration
-                // Main content
-                VStack(spacing: 0) {
-                    // Logo section
-                    logoSection
-                        .padding(.bottom, 40)
-                    
-                    // Welcome message
-                    welcomeMessage
-                        .padding(.bottom, 60)
-                    
-                    // Action buttons
-                    actionButtons
-                        .padding(.horizontal, 40)
-                        .padding(.bottom, 20)
-                    HStack {
-                        SecondaryButton(
-                            icon: "book.fill",
-                            title: "Tutorial",
-                            color: .green
-                        ) {
-                            // Tutorial action
-                        }
-                        
-                        SecondaryButton(
-                            icon: "trophy.fill",
-                            title: "Achievements",
-                            color: .orange
-                        ) {
-                            // Achievements action
-                        }
-                        
-                        SecondaryButton(
-                            icon: "chart.bar.fill",
-                            title: "Stats",
-                            color: .purple
-                        ) {
-                            // Stats action
-                        }
-                    }
-                    .padding(60)
-                    // Tips carousel
-                    tipsSection
-                    Spacer()
-                }
-                .padding()
+        GeometryReader { geometry in
+            ZStack {
+                backgroundView
+                    .ignoresSafeArea()
                 
-                // Confetti overlay
-                if confettiTrigger > 0 {
-                    ConfettiAnimation()
-                        .allowsHitTesting(false)
+                ScrollView {
+                    // FIXED: Dynamic positioning based on screen size
+                    floatingDiceDecoration(in: geometry.size)
+                    
+                    // Main content
+                    VStack(spacing: 0) {
+                        // Logo section
+                        logoSection
+                            .padding(.bottom, 40)
+                        
+                        // Welcome message
+                        welcomeMessage
+                            .padding(.bottom, 60)
+                        
+                        // Action buttons
+                        actionButtons
+                            .padding(.horizontal, 40)
+                            .padding(.bottom, 20)
+                        
+                        HStack {
+                            SecondaryButton(
+                                icon: "book.fill",
+                                title: String(localized: "tutorial_button"),
+                                color: .green
+                            ) {
+                                // Tutorial action
+                            }
+                            
+                            SecondaryButton(
+                                icon: "trophy.fill",
+                                title: String(localized: "achievements_button"),
+                                color: .orange
+                            ) {
+                                // Achievements action
+                            }
+                            
+                            SecondaryButton(
+                                icon: "chart.bar.fill",
+                                title: String(localized: "stats_button"),
+                                color: .purple
+                            ) {
+                                // Stats action
+                            }
+                        }
+                        .padding(60)
+                        
+                        // Tips carousel
+                        tipsSection
+                        Spacer()
+                    }
+                    .padding()
+                    
+                    // Confetti overlay
+                    if confettiTrigger > 0 {
+                        ConfettiAnimation()
+                            .allowsHitTesting(false)
+                    }
                 }
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .scrollBounceBehavior(.basedOnSize)
+            .onAppear {
+                animateEntrance()
+            }
+            .ignoresSafeArea(edges: .top)
         }
-        .onAppear {
-            animateEntrance()
-        }
-        .ignoresSafeArea(edges: .top)
     }
     
     // MARK: - Background
@@ -116,6 +121,7 @@ struct WelcomeScreen: View {
                 .opacity(0.6)
         }
     }
+    
     private func meshGradientView(time: TimeInterval) -> some View {
         MeshGradient(
             width: 4,
@@ -136,6 +142,7 @@ struct WelcomeScreen: View {
         .opacity(0.5)
         .blur(radius: 30)
     }
+    
     private var gradientBackground: some View {
         LinearGradient(
             stops: [
@@ -148,8 +155,8 @@ struct WelcomeScreen: View {
         )
     }
     
-    // MARK: - Floating Dice
-    var floatingDiceDecoration: some View {
+    // MARK: - Floating Dice (FIXED: Dynamic positioning)
+    func floatingDiceDecoration(in size: CGSize) -> some View {
         ZStack {
             ForEach(0..<6) { index in
                 FloatingDice(
@@ -157,7 +164,7 @@ struct WelcomeScreen: View {
                     delay: Double(index) * 0.2,
                     isActive: diceAnimations[index]
                 )
-                .position(dicePosition(for: index))
+                .position(dicePosition(for: index, in: size))
                 .onTapGesture {
                     diceInteraction(index: index)
                 }
@@ -215,6 +222,8 @@ struct WelcomeScreen: View {
             .onTapGesture {
                 triggerLogoAnimation()
             }
+            .accessibilityLabel(String(localized: "app_logo"))
+            .accessibilityHint(String(localized: "tap_to_spin"))
             
             // App name with shimmer effect
             Text("DiceSplitter")
@@ -233,12 +242,12 @@ struct WelcomeScreen: View {
     // MARK: - Welcome Message
     var welcomeMessage: some View {
         VStack(spacing: 16) {
-            Text("Welcome, \(playerName.isEmpty ? "Player" : playerName)!")
+            Text("welcome_message \(playerName.isEmpty ? String(localized: "default_player_name") : playerName)")
                 .font(.system(size: 32, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .opacity(titleOpacity)
             
-            Text("Your journey to dice domination begins now")
+            Text(String(localized: "welcome_subtitle"))
                 .font(.system(size: 18, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.8))
                 .offset(y: subtitleOffset)
@@ -249,7 +258,6 @@ struct WelcomeScreen: View {
     // MARK: - Action Buttons
     var actionButtons: some View {
         VStack {
-
             // Play button
             Button(action: {
                 playButtonTapped()
@@ -258,7 +266,7 @@ struct WelcomeScreen: View {
                     Image(systemName: "play.circle.fill")
                         .font(.title)
                     
-                    Text("Start Playing")
+                    Text(String(localized: "start_playing_button"))
                         .font(.title3.bold())
                     
                     Image(systemName: "arrow.right")
@@ -292,13 +300,15 @@ struct WelcomeScreen: View {
                 .scaleEffect(pulseAnimation ? 1.05 : 1)
                 .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseAnimation)
             }
+            .accessibilityLabel(String(localized: "start_new_game"))
+            .accessibilityHint(String(localized: "begins_new_game_hint"))
         }
     }
     
     // MARK: - Tips Section
     var tipsSection: some View {
         VStack(spacing: 12) {
-            Text("Quick Tip")
+            Text(String(localized: "quick_tip_label"))
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                 .foregroundColor(.white.opacity(0.6))
             
@@ -306,19 +316,19 @@ struct WelcomeScreen: View {
                 HStack(spacing: 16) {
                     TipCard(
                         icon: "lightbulb.fill",
-                        text: "Tap dice to claim them and increase their value",
+                        text: String(localized: "tip_claim_dice"),
                         color: .yellow
                     )
                     
                     TipCard(
                         icon: "star.fill",
-                        text: "Chain reactions happen when dice exceed their neighbor count",
+                        text: String(localized: "tip_chain_reactions"),
                         color: .orange
                     )
                     
                     TipCard(
                         icon: "flag.fill",
-                        text: "Control all dice or have the highest score to win",
+                        text: String(localized: "tip_win_condition"),
                         color: .green
                     )
                 }
@@ -401,14 +411,16 @@ struct WelcomeScreen: View {
 #endif
     }
     
-    private func dicePosition(for index: Int) -> CGPoint {
+    // FIXED: Dynamic positioning based on screen size
+    private func dicePosition(for index: Int, in size: CGSize) -> CGPoint {
+        let padding: CGFloat = 80
         let positions: [CGPoint] = [
-            CGPoint(x: 80, y: 150),
-            CGPoint(x: 320, y: 120),
-            CGPoint(x: 60, y: 400),
-            CGPoint(x: 340, y: 380),
-            CGPoint(x: 100, y: 600),
-            CGPoint(x: 300, y: 580)
+            CGPoint(x: padding, y: size.height * 0.15),
+            CGPoint(x: size.width - padding, y: size.height * 0.12),
+            CGPoint(x: padding * 0.75, y: size.height * 0.4),
+            CGPoint(x: size.width - padding * 0.75, y: size.height * 0.38),
+            CGPoint(x: padding * 1.25, y: size.height * 0.6),
+            CGPoint(x: size.width - padding * 1.25, y: size.height * 0.58)
         ]
         return positions[min(index, positions.count - 1)]
     }
