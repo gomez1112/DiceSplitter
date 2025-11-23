@@ -14,12 +14,6 @@ import UIKit
 @MainActor
 @Observable
 final class Audio {
-    @ObservationIgnored
-    @AppStorage("soundEnabled") var soundEnabled = true
-    @ObservationIgnored
-    @AppStorage("hapticEnabled") var hapticEnabled = true
-    
-    
     private var audioPlayers: [String: AVAudioPlayer] = [:]
     
     init() {
@@ -40,7 +34,7 @@ final class Audio {
 #endif
     }
     
-    func playSound(_ sound: GameSound) {
+    func playSound(_ soundEnabled: Bool, _ sound: GameSound) {
         guard soundEnabled else { return }
         
 #if os(iOS)
@@ -57,13 +51,13 @@ final class Audio {
             case .move:
                 AudioServicesPlaySystemSound(1306) // Lock sound
         }
-#else
+#elseif os(macOS)
         // macOS sound implementation
         NSSound.beep()
 #endif
     }
     
-    func playHaptic(_ type: HapticType) {
+    func playHaptic(_ hapticEnabled: Bool, _ type: HapticType) {
         guard hapticEnabled else { return }
         
 #if os(iOS)

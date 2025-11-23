@@ -30,4 +30,5 @@ enum AIDifficulty: String, CaseIterable, Codable {
             case .expert: return 4
         }
     }
+
 }

@@ -11,6 +11,10 @@ struct ConfettiView: View {
     @State private var confettiPieces: [ConfettiPiece] = []
     let playerColor: Color
     
+    let confettiColors: [Color] = [
+        .yellow, .orange, .pink, .purple, .blue, .green, .red
+    ]
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -26,24 +30,27 @@ struct ConfettiView: View {
     }
     
     private func createConfetti(in size: CGSize) {
-        for i in 0..<50 {
-            let delay = Double(i) * 0.02
+        for i in 0..<80 {
+            let delay = Double(i) * 0.01
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 let piece = ConfettiPiece(
-                    color: [playerColor, .yellow, .orange, .pink, .purple].randomElement()!,
-                    size: CGFloat.random(in: 8...16),
+                    shape: [true, false].randomElement()! ? .circle : .rectangle,
+                    color: ([playerColor] + confettiColors).randomElement()!,
+                    size: CGFloat.random(in: 8...20),
                     startX: CGFloat.random(in: 0...size.width),
                     startY: -20,
                     endY: size.height + 50,
+                    horizontalMovement: CGFloat.random(in: -100...100),
                     rotation: Double.random(in: 0...360),
-                    duration: Double.random(in: 2...4)
+                    duration: Double.random(in: 2...4),
+                    delay: delay
                 )
                 confettiPieces.append(piece)
             }
         }
         
         // Clean up after animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
             confettiPieces.removeAll()
         }
     }

@@ -9,15 +9,22 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+    
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("playerName") private var playerName = ""
+    
+    @State private var selectedTab = Tabs.play
+    @State private var isShowingWelcomeScreen = false
     @State private var game: Game?
     @State private var mapSize = CGSize(width: 6, height: 6)
     @State private var playerType: PlayerType = .ai
     @State private var numberOfPlayers = 3
     @State private var aiDifficulty: AIDifficulty = .medium
+    
     @Query private var stats: [Statistics]
+    
     @Environment(\.modelContext) private var modelContext
-
+    
     private var stat: Statistics {
         // Get or create statistics
         if let existingStats = stats.first {
@@ -29,52 +36,64 @@ struct ContentView: View {
         return newStats
     }
     var body: some View {
-#if os(macOS)
-        contentBody
-            .frame(minWidth: 800, minHeight: 600)
-#else
-        contentBody
-#endif
-    }
-    
-    var contentBody: some View {
-        NavigationStack {
-            if hasCompletedOnboarding {
-                if let game {
-                    ZStack {
+        TabView(selection: $selectedTab) {
+            Tab(value: .play) {
+                    if let game = game {
                         GameView(
                             game: game,
                             mapSize: $mapSize,
                             playerType: $playerType,
                             numberOfPlayers: $numberOfPlayers,
                             aiDifficulty: $aiDifficulty,
-                            resetGame: {
-                                startGame()
-                            }, stats: stat
+                            resetGame: resetGame,
+                            stats: stat
                         )
+                    } else if !hasCompletedOnboarding {
+                        OnboardingView(
+                            playerName: $playerName,
+                            mapSize: $mapSize,
+                            playerType: $playerType,
+                            numberOfPlayers: $numberOfPlayers,
+                            aiDifficulty: $aiDifficulty
+                        ) {
+                            hasCompletedOnboarding = true
+                            withAnimation {
+                                isShowingWelcomeScreen = true
+                            }
+                        }
+                    } else if isShowingWelcomeScreen || game == nil {
+                        WelcomeScreen(
+                            showWelcome: $isShowingWelcomeScreen,
+                            playerName: playerName
+                        ) {
+                            startGame()
+                        }
                     }
-                } else {
-                    SettingsView(
-                        mapSize: $mapSize,
-                        playerType: $playerType,
-                        numberOfPlayers: $numberOfPlayers,
-                        aiDifficulty: $aiDifficulty,
-                        showingWarning: false,
-                        startGame: startGame
-                    )
-                }
-            } else {
-                OnboardingView(
+            } label: {
+                Tabs.play.tabLabel
+            }
+            Tab(value: Tabs.stats) {
+                StatisticsView(stats: stat)
+            } label: {
+                Tabs.stats.tabLabel
+            }
+            Tab(value: Tabs.settings) {
+                SettingsView(
                     mapSize: $mapSize,
                     playerType: $playerType,
                     numberOfPlayers: $numberOfPlayers,
-                    aiDifficulty: $aiDifficulty
-                ) {
-                    hasCompletedOnboarding = true
-                    startGame()
-                }
+                    aiDifficulty: $aiDifficulty,
+                    showingWarning: game != nil && !(game?.isGameOver ?? true),
+                    startGame: {
+                        selectedTab = .play
+                        resetGame()
+                    }
+                )
+            } label: {
+                Tabs.settings.tabLabel
             }
         }
+
     }
     
     private func startGame() {
@@ -89,6 +108,12 @@ struct ContentView: View {
                 numberOfPlayers: numberOfPlayers,
                 aiDifficulty: aiDifficulty
             )
+        }
+    }
+    private func resetGame() {
+        game = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            startGame()
         }
     }
 }

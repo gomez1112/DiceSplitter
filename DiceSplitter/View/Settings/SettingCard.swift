@@ -1,35 +1,44 @@
 //
-//  SettingCard.swift
+//  EnhancedSettingCard.swift
 //  DiceSplitter
 //
-//  Created by Gerard Gomez on 1/27/25.
+//  Created by Gerard Gomez on 7/9/25.
 //
 
 import SwiftUI
+// MARK: - Supporting Views
 
 struct SettingCard<Content: View>: View {
     let title: String
     let icon: String
+    let iconColor: Color
     @ViewBuilder var content: () -> Content
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 20) {
+            // Header
             HStack {
-                Image(systemName: icon)
-                    .foregroundStyle(.blue)
-                    .font(.title3)
+                ZStack {
+                    Circle()
+                        .fill(iconColor.opacity(0.2))
+                        .frame(width: 36, height: 36)
+                    
+                    Image(systemName: icon)
+                        .foregroundStyle(iconColor)
+                        .font(.system(.body, design: .rounded).weight(.semibold))
+                }
+                
                 Text(title)
-                    .font(.headline.bold())
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(ColorTheme.primaryText)
+                
                 Spacer()
             }
             
+            // Content
             content()
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-        )
+        .padding(24)
+        .glassMorphism(cornerRadius: 24)
     }
 }

@@ -29,11 +29,11 @@ enum Player: Identifiable, CaseIterable {
     
     var color: Color {
         switch self {
-            case .green: .green
-            case .red: .red
-            case .none: Color(white: 0.6)
-            case .blue: .blue
-            case .yellow: .yellow
+            case .green: return ColorTheme.playerGreen
+            case .red: return ColorTheme.playerRed
+            case .none: return ColorTheme.playerNone
+            case .blue: return ColorTheme.playerBlue
+            case .yellow: return ColorTheme.playerYellow
         }
     }
    

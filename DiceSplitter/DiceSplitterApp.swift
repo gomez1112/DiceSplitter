@@ -11,6 +11,7 @@ import SwiftUI
 @main
 struct DiceSplitterApp: App {
     @State private var audio = Audio()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

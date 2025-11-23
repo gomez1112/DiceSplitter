@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: - Pulse Ring Effect
+// MARK: - Enhanced Pulse Ring
 struct PulseRingView: View {
     let color: Color
     @State private var scale: CGFloat = 0.5
@@ -15,12 +15,20 @@ struct PulseRingView: View {
     
     var body: some View {
         Circle()
-            .stroke(color, lineWidth: 4)
+            .stroke(
+                LinearGradient(
+                    colors: [color, color.opacity(0.5)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 3
+            )
             .scaleEffect(scale)
             .opacity(opacity)
+            .blur(radius: opacity < 0.5 ? 2 : 0)
             .onAppear {
-                withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                    scale = 2.0
+                withAnimation(.easeOut(duration: 2).repeatForever(autoreverses: false)) {
+                    scale = 2.5
                     opacity = 0
                 }
             }

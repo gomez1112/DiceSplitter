@@ -21,6 +21,7 @@ final class Game {
     private var numCols: Int
     private var playerType: PlayerType
     private var numberOfPlayers: Int
+    private var isProcessingChanges = false
     
     var activePlayer: Player
     var players: [Player]
@@ -39,7 +40,7 @@ final class Game {
     
     // AI thinking indicator
     var isAIThinking = false
-    
+
     init(rows: Int, columns: Int, playerType: PlayerType, numberOfPlayers: Int, aiDifficulty: AIDifficulty = .medium) {
         self.numRows = rows
         self.numCols = columns
@@ -71,6 +72,10 @@ final class Game {
     }
     
     func reset(rows: Int, columns: Int, playerType: PlayerType, numberOfPlayers: Int) {
+        guard rows >= 3, columns >= 3, numberOfPlayers >= 2 else {
+            print("Invalid game parameters")
+            return
+        }
         self.numRows = rows
         self.numCols = columns
         
@@ -89,6 +94,7 @@ final class Game {
         self.gameStartTime = Date()
         self.isPaused = false
         self.isAIThinking = false
+        self.isProcessingChanges = false
         
         self.playerType = playerType
         self.numberOfPlayers = numberOfPlayers
@@ -104,7 +110,7 @@ final class Game {
         }
     }
     var canUndo: Bool {
-        !moveHistory.isEmpty && state == .waiting && activePlayer != .red
+        !moveHistory.isEmpty && state == .waiting && activePlayer != .red && isPaused
     }
     
     func undo() {
@@ -130,6 +136,7 @@ final class Game {
     }
     
     var isGameOver: Bool {
+        if isProcessingChanges { return false }
         if isPaused { return false }
         
         let allOwnedByOnePlayer = players.contains { player in
@@ -194,56 +201,49 @@ final class Game {
         return score
     }
     
+    // Game.swift
     private func minimax(depth: Int, isMaximizing: Bool, alpha: Int, beta: Int, player: Player) -> (score: Int, dice: Dice?) {
-        if depth == 0 || isGameOver {
-            return (evaluateBoard(for: player), nil)
-        }
+        if depth == 0 || isGameOver { return (evaluateBoard(for: player), nil) }
         
-        var bestDice: Dice?
         var alpha = alpha
         var beta = beta
+        var bestDice: Dice? = nil
+        let me = player
+        let opp: Player = players.first(where: { $0 != me && $0 != .none }) ?? .red
         
         if isMaximizing {
             var maxEval = Int.min
-            
             for row in rows {
-                for dice in row {
-                    if (dice.owner == .none || dice.owner == player) && dice.value <= dice.neighbors {
-                        // Simulate move
-                        let originalValue = dice.value
-                        let originalOwner = dice.owner
-                        dice.value += 1
-                        dice.owner = player
-                        
-                        let eval = minimax(depth: depth - 1, isMaximizing: false, alpha: alpha, beta: beta, player: player).score
-                        
-                        // Undo simulation
-                        dice.value = originalValue
-                        dice.owner = originalOwner
-                        
-                        if eval > maxEval {
-                            maxEval = eval
-                            bestDice = dice
-                        }
-                        
-                        alpha = max(alpha, eval)
-                        if beta <= alpha {
-                            break
-                        }
-                    }
+                for d in row where (d.owner == .none || d.owner == me) && d.value <= d.neighbors {
+                    let pv = d.value, po = d.owner
+                    d.value += 1; d.owner = me
+                    let eval = minimax(depth: depth - 1, isMaximizing: false, alpha: alpha, beta: beta, player: me).score
+                    d.value = pv; d.owner = po
+                    
+                    if eval > maxEval { maxEval = eval; bestDice = d }
+                    alpha = max(alpha, eval)
+                    if beta <= alpha { break }
                 }
             }
-            
             return (maxEval, bestDice)
         } else {
             var minEval = Int.max
-            
-            // Similar logic for minimizing player
-            // ... (abbreviated for brevity)
-            
+            for row in rows {
+                for d in row where (d.owner == .none || d.owner == opp) && d.value <= d.neighbors {
+                    let pv = d.value, po = d.owner
+                    d.value += 1; d.owner = opp
+                    let eval = minimax(depth: depth - 1, isMaximizing: true, alpha: alpha, beta: beta, player: me).score
+                    d.value = pv; d.owner = po
+                    
+                    if eval < minEval { minEval = eval }
+                    beta = min(beta, eval)
+                    if beta <= alpha { break }
+                }
+            }
             return (minEval, nil)
         }
     }
+
     
     private func getBestMove() -> Dice? {
         switch aiDifficulty {
@@ -340,11 +340,15 @@ final class Game {
     
     private func executeAITurn() {
         guard state == .thinking else { return }
-        
+        guard !isGameOver else { return }
         isAIThinking = true
         
         Task {
             try? await Task.sleep(for: .seconds(aiDifficulty.thinkingTime))
+            guard state == .thinking && !isGameOver else {
+                isAIThinking = false
+                return
+            }
             
             if let dice = getBestMove() {
                 changeList.append((dice.row, dice.column))
@@ -405,13 +409,19 @@ final class Game {
         }
     }
     
+    // Game.swift
     private func runChanges() {
+        guard !isProcessingChanges else { return }
+        isProcessingChanges = true
+        
         if changeList.isEmpty {
+            isProcessingChanges = false
             nextTurn()
             return
         }
         
-        let toChange = changeList
+        var toChange: [(Int, Int)] = []
+        toChange.append(contentsOf: changeList)
         changeList.removeAll()
         
         for (row, col) in toChange {
@@ -420,9 +430,11 @@ final class Game {
         
         Task {
             try? await Task.sleep(for: .seconds(0.25))
-            runChanges()
+            isProcessingChanges = false
+            runChanges() // process next wave if any
         }
     }
+
     
     private func nextTurn() {
         guard let currentIndex = players.firstIndex(of: activePlayer) else { return }
@@ -473,6 +485,9 @@ final class Game {
         // Run changes and store the complete move when done
         Task {
             runChanges()
+            while isProcessingChanges {
+                try? await Task.sleep(for: .milliseconds(50))
+            }
             // After all changes complete, store the move with all affected dice
             let completeMove = GameMove(
                 dice: dice,
@@ -484,6 +499,7 @@ final class Game {
             if moveHistory.count > maxUndoHistory {
                 moveHistory.removeFirst()
             }
+            currentMoveAffectedDice = []
         }
     }
     

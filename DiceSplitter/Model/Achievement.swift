@@ -73,7 +73,7 @@ struct Achievement: Identifiable, Codable {
         id: "master_tactician",
         name: "Master Tactician",
         description: "Beat Expert AI 10 times",
-        icon: "chess.king.fill"
+        icon: "puzzlepiece.fill"
     )
     
     static let bigBoardMaster = Achievement(
