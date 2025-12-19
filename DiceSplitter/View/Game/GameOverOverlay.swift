@@ -26,10 +26,14 @@ struct GameOverOverlay: View {
     var body: some View {
         ZStack {
             // Animated backdrop
-            Color.black.opacity(0.7)
-                .ignoresSafeArea()
-                .transition(.opacity)
-                .onTapGesture { } // Prevent tap through
+            Button {
+            } label: {
+                Color.black.opacity(0.7)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHidden(true)
             
             // Victory effects for winner
             if let winner = winner {
@@ -71,7 +75,8 @@ struct GameOverOverlay: View {
                 // Title
                 VStack(spacing: 8) {
                     Text("Game Over")
-                        .font(.system(size: 42, weight: .black, design: .rounded))
+                        .font(.largeTitle)
+                        .bold()
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [ColorTheme.primaryText, ColorTheme.primaryText.opacity(0.8)],
@@ -82,7 +87,8 @@ struct GameOverOverlay: View {
                     
                     if winner != nil {
                         Text("Victory!")
-                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .font(.title2)
+                            .bold()
                             .foregroundStyle(ColorTheme.accent)
                             .shimmer()
                     }
@@ -92,7 +98,7 @@ struct GameOverOverlay: View {
                 if let winner {
                     VStack(spacing: 20) {
                         Text("Winner")
-                            .font(.system(.headline, design: .rounded, weight: .medium))
+                            .font(.headline)
                             .foregroundStyle(ColorTheme.secondaryText)
                         
                         ZStack {
@@ -126,7 +132,8 @@ struct GameOverOverlay: View {
                                     .neonGlow(color: winner.color, intensity: 8)
                                 
                                 Text("\(winnerScore)")
-                                    .font(.system(size: 48, weight: .black, design: .rounded))
+                                    .font(.largeTitle)
+                                    .bold()
                                     .foregroundStyle(ColorTheme.primaryText)
                                     .transition(.scale.combined(with: .opacity))
                             }
@@ -136,7 +143,7 @@ struct GameOverOverlay: View {
                 } else {
                     VStack(spacing: 16) {
                         Image(systemName: "equal.square.fill")
-                            .font(.system(size: 60))
+                            .font(.largeTitle)
                             .foregroundStyle(
                                 LinearGradient(
                                     colors: [ColorTheme.warning, ColorTheme.accent],
@@ -147,7 +154,8 @@ struct GameOverOverlay: View {
                             .symbolEffect(.pulse)
                         
                         Text("It's a Draw!")
-                            .font(.system(.title, design: .rounded, weight: .bold))
+                            .font(.title)
+                            .bold()
                             .foregroundStyle(ColorTheme.primaryText)
                     }
                 }
@@ -160,7 +168,8 @@ struct GameOverOverlay: View {
                             Image(systemName: "arrow.clockwise")
                                 .font(.title3)
                             Text("Play Again")
-                                .font(.system(.title3, design: .rounded, weight: .bold))
+                                .font(.title3)
+                                .bold()
                         }
                         .foregroundStyle(.white)
                         .frame(width: 260)
@@ -192,7 +201,8 @@ struct GameOverOverlay: View {
                             Image(systemName: "gear")
                                 .font(.title3)
                             Text("Settings")
-                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .font(.title3)
+                                .bold()
                         }
                         .foregroundStyle(ColorTheme.primaryText)
                         .frame(width: 260)
@@ -243,7 +253,8 @@ struct GameOverOverlay: View {
             }
             
             if winner != nil {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.3))
                     showConfetti = true
                     showCrown = true
                 }

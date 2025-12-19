@@ -63,8 +63,9 @@ struct OnboardingView: View {
                 pageOpacity = 0
                 pageScale = 0.95
             }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.2))
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                     pageOpacity = 1
                     pageScale = 1
@@ -299,7 +300,8 @@ struct PlayerNamePage: View {
         }
         .onAppear {
             isAnimating = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.5))
                 isTextFieldFocused = true
             }
         }

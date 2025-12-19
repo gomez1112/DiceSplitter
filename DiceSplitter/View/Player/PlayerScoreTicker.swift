@@ -13,7 +13,7 @@ struct PlayerScoreTicker: View {
     let scores: [(player: Player, score: Int)]
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal) {
             HStack(spacing: 12) {
                 ForEach(scores, id: \.player) { player, score in
                     PlayerBadge(
@@ -28,6 +28,7 @@ struct PlayerScoreTicker: View {
                 }
             }
         }
+        .scrollIndicators(.hidden)
     }
 }
 

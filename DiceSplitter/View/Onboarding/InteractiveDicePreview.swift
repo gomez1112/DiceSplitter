@@ -28,23 +28,31 @@ struct InteractiveDicePreview: View {
                     )
                     .blur(radius: 10)
                     .scaleEffect(1.5)
-                
-                DiceView(dice: dice)
-                    .frame(width: 120, height: 120)
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            if dice.owner == .none {
-                                dice.owner = .green
-                                showHint = false
-                            }
-                            dice.value = min(dice.value + 1, 6)
-                            tapCount += 1
-                            
-                            if dice.value > 3 {
-                                dice.value = 1
-                            }
+
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        if dice.owner == .none {
+                            dice.owner = .green
+                            showHint = false
+                        }
+                        dice.value = min(dice.value + 1, 6)
+                        tapCount += 1
+
+                        if dice.value > 3 {
+                            dice.value = 1
                         }
                     }
+                } label: {
+                    VStack {
+                        DiceView(dice: dice)
+                            .frame(width: 120, height: 120)
+                        Text("Claim dice")
+                            .font(.caption2)
+                            .opacity(0)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Claim dice")
             }
             
             if showHint {
@@ -52,18 +60,20 @@ struct InteractiveDicePreview: View {
                     Image(systemName: "hand.tap.fill")
                         .font(.title3)
                     Text("Tap to claim!")
-                        .font(.system(.body, design: .rounded, weight: .medium))
+                        .font(.body)
+                        .bold()
                 }
-                .foregroundColor(ColorTheme.primaryText)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+                .foregroundStyle(ColorTheme.primaryText)
+                .padding(.horizontal)
+                .padding(.vertical)
                 .glassMorphism(cornerRadius: 25)
                 .shimmer()
                 .transition(.scale.combined(with: .opacity))
             } else {
                 Text("Value: \(dice.value)/\(dice.neighbors)")
-                    .font(.system(.body, design: .rounded, weight: .medium))
-                    .foregroundColor(ColorTheme.secondaryText)
+                    .font(.body)
+                    .bold()
+                    .foregroundStyle(ColorTheme.secondaryText)
                     .transition(.scale.combined(with: .opacity))
             }
         }

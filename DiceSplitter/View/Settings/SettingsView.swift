@@ -223,7 +223,7 @@ struct SettingsView: View {
             }
             
             // Quick presets
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal) {
                 HStack(spacing: 12) {
                     BoardPresetButton(width: 4, height: 4, label: "Tiny", currentSize: mapSize) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -252,6 +252,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
         }
     }
     
@@ -379,5 +380,4 @@ struct SettingsView: View {
 #Preview {
     SettingsView(mapSize: .constant(.init(width: 8, height: 8)), playerType: .constant(.human), numberOfPlayers: .constant(3), aiDifficulty: .constant(.medium), showingWarning: true, startGame: {  })
 }
-
 

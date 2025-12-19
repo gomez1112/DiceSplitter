@@ -219,7 +219,8 @@ struct DiceView: View {
         }
         
         // Reset after animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(0.4))
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 isExploding = false
             }
