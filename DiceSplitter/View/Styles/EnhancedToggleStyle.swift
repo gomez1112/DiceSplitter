@@ -24,8 +24,13 @@ struct EnhancedToggleStyle: ToggleStyle {
                         .offset(x: configuration.isOn ? 10 : -10)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isOn)
                 )
-                .onTapGesture {
-                    configuration.isOn.toggle()
+                .overlay {
+                    Button("Toggle", systemImage: "circle") {
+                        configuration.isOn.toggle()
+                    }
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.plain)
+                    .opacity(0.01)
                 }
         }
     }

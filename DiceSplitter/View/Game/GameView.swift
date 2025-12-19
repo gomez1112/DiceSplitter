@@ -51,7 +51,7 @@ struct GameView: View {
                         
                         // Game Board with enhanced visuals
                         GeometryReader { geometry in
-                            ScrollView([.horizontal, .vertical], showsIndicators: false) {
+                            ScrollView([.horizontal, .vertical]) {
                                 gameBoard
                                     .padding(20)
                                     .frame(
@@ -59,6 +59,7 @@ struct GameView: View {
                                         minHeight: geometry.size.height
                                     )
                             }
+                            .scrollIndicators(.hidden)
                             .scrollBounceBehavior(.basedOnSize)
                         }
                         .blur(radius: game.isPaused ? 10 : 0)
@@ -76,17 +77,17 @@ struct GameView: View {
                             }
                         }
                         HStack {
-                            Button {
+                            Button("Pause", systemImage: "pause.fill") {
                                 audio.playSound(soundEnabled, .tap)
                                 showingPauseMenu = true
-                            } label: {
-                                Image(systemName: "pause.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(.white)
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.white.opacity(0.1))
-                                    .clipShape(Circle())
                             }
+                            .labelStyle(.iconOnly)
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(.circle)
+                            .accessibilityLabel("Pause")
                             Spacer()
                             if game.isAIThinking {
                                 AIThinkingIndicator()
@@ -144,7 +145,8 @@ struct GameView: View {
                                 }
                                 
                             } label: {
-                                Image(systemName: "ellipsis.circle.fill")
+                                Label("More", systemImage: "ellipsis.circle.fill")
+                                    .labelStyle(.iconOnly)
                                     .font(.title3)
                                     .symbolRenderingMode(.hierarchical)
                                     .foregroundStyle(ColorTheme.primary)
@@ -205,8 +207,9 @@ struct GameView: View {
                         insertion: .move(edge: .top).combined(with: .opacity),
                         removal: .scale(scale: 0.5).combined(with: .opacity)
                     ))
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    .task {
+                        try? await Task.sleep(for: .seconds(3))
+                        await MainActor.run {
                             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                                 showingAchievement = nil
                             }
@@ -312,4 +315,3 @@ struct GameView: View {
     )
     .environment(Audio())
 }
-

@@ -56,8 +56,9 @@ struct StatisticsView: View {
                     contentOpacity = 0
                     contentScale = 0.95
                 }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.2))
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                         contentOpacity = 1
                         contentScale = 1

@@ -18,11 +18,11 @@ struct TipCard: View {
                 .font(.title3)
                 .foregroundStyle(color)
             Text(text)
-                .font(.system(size: 14, design: .rounded))
+                .font(.callout)
                 .foregroundStyle(.white.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(16)
+        .padding()
         .frame(width: 280)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
